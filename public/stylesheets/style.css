@@ -1,19 +1,7 @@
-body{
-    padding:2em 10%;
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
-
-.article{
-    margin: 2em;
-}
-
-.comment-name{
-    font-weight:bold;
-}
-
-.comment-body{
-    padding:0.5em;
-}
-
-.failed{
-    background-color:red;
+a {
+  color: #00b7ff;
 }
