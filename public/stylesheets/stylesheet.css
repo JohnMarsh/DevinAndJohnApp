@@ -53,30 +53,30 @@ CSS for An Object Box
 	text-align: center;
 }
 
-#spacerDiv{
+.spacerDiv{
 	height: 30px;
 	width: 20px;	
 }
 
-#likeDiv{
+.likeDiv{
  	height: 30px;
  	width: 60px;
 	background-color: #0C3;	
 }
 
-#dislikeDiv{
+.dislikeDiv{
 	height: 30px;
  	width: 60px;
 	background-color: #903;
 }
 
-#haveLikedDiv{
+.haveLikedDiv{
 	height: 30px;
 	width: 140px;
 	display: none;
 }
 
-#likesVsDislikesDiv{
+.likesVsDislikesDiv{
 	height: 30px;
 	width: 140px;
 	display: none;

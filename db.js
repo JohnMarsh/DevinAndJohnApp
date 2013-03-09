@@ -40,6 +40,32 @@ function getDatabase(){
 	
 		});
 	}
+
+	// Function which gets users info by the userID
+	db.getUser = function(userID, callback) {
+		var query = 'SELECT * from Users JOIN BasicInfo ON Users.userID = BasicInfo.userID'  
+		+' WHERE Users.UserID=' + userID + ' LIMIT 1';
+		connection.query(query, function(err, rows, fields) {
+		  if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(undefined); throw err;};
+		  if(rows!=undefined)
+		  	callback(rows[0]);
+		  else
+		  	callback(undefined);
+		});
+	}
+
+	// Function which gets users info by the userID
+	db.getUserByUsername = function(username, callback) {
+		var query = 'SELECT * from Users JOIN BasicInfo ON Users.userID = BasicInfo.userID'  
+		+' WHERE Users.Username=? LIMIT 1';
+		connection.query(query, [username], function(err, rows, fields) {
+		  if (err){ console.log('ERROR CONNECTING TO MYSQL: ' +err); callback(undefined); throw err;};
+		  if(rows!=undefined)
+		  	callback(rows[0]);
+		  else
+		  	callback(undefined);
+		});
+	}
 	
 	// Function which gets the stalker IDs of a user
 	db.getUserStalkers = function(userID, callback) {
@@ -97,7 +123,7 @@ function getDatabase(){
 	}
 	
 	// Function which gets content info by the contentID
-	db.getUserInfo = function(contentID, callback) {
+	db.getContentInfo = function(contentID, callback) {
 		var query = 'SELECT * from Content WHERE ContentID=' + contentID + ' LIMIT 1';
 		connection.query(query, function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(undefined); throw err;};

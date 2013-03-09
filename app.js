@@ -6,6 +6,7 @@
 var express = require('express')
   , routes = require('./routes')
   , upload = require('./routes/upload')
+  , user = require('./routes/user')
   , db = require('./db')
   , http = require('http')
   , path = require('path')
@@ -39,10 +40,12 @@ app.configure('development', function(){
 });
 
 app.get('/', function(req, res, next){
-        routes.index(req, res, next);
+  routes.index(req, res, next);
 });
 
 app.get('/upload_content', upload.uploadContent);
+
+app.get('/users/:user', user.userProfile);
 
 app.post('/upload',  function(req, res) {
 	var theDB = db.database();

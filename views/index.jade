@@ -2,39 +2,35 @@ extends layout
 
 block content
 	script(type='text/javascript')
-		// Function which handles a user liking or disliking a object
-		haveLikedOrDislikedObject = function (res){
-			$("#likeAndDislikeDiv").fadeOut(400, function(){
-				$("#haveLikedDiv").fadeIn(1000);
-				$("#likesVsDislikesDiv").fadeIn(1000);
-			});
-			$("#likesVsDislikesDiv").text("+114");
-			if(res == 0){
-				//$.post("likeordislike.php", { id: "1", action: "1" } );
-				$("#haveLikedDiv").text("You like this.");
-			} else{
-				//$.post("likeordislike.php", { id: "1", action: "2" } );
-				$("#haveLikedDiv").text("You dislike this.");
-			}
-		};
 		$(document).ready(function(){
+			//Loads masonry
 			$( '#container' ).masonry( { itemSelector: '.item'} );
+
+			//Loads in content received from server
+			var options = !{JSON.stringify(variable.content)};
+			theUser = !{JSON.stringify(variable.user)}; 
+ 
 			$.getScript("public/javascripts/load_content.js", function(){
-						loadInContent(options, $('#container'));
+						loadInContent(options, theUser, $('#container'));
 			});
-			var options = !{JSON.stringify(variable.content)}; 
 			$('#container').masonry('reload')
-			// Handles clicking of like or dislike buttons
-			$("#dislikeDiv").click(function(){
-				haveLikedOrDislikedObject(1);
+
+			//Sets on click listener for like button of content
+			$(document).delegate("div[id^='likeDiv']", "click", function() {
+				var el = this;
+				console.log('The name is: ' +$(el).attr('name'));
+				$.getScript("public/javascripts/load_content.js", function(){
+						haveLikedOrDislikedObject(0, $(el).attr('name'));
+				});
 			});
-			$("#likeDiv").click(function(){
-				haveLikedOrDislikedObject(0);
-			});
-			$(document).delegate('#likeDiv', 'click',function() {
-				console.log('The name is: ' +$(this).name);
-				haveLikedOrDislikedObject(0);
-				return false;
+
+			//Sets on click listener for dislike button of content
+			$(document).delegate("div[id^='dislikeDiv']", "click", function() {
+				var el = this;
+				console.log('The name is: ' +$(el).attr('name'));
+				$.getScript("public/javascripts/load_content.js", function(){
+						haveLikedOrDislikedObject(1, $(el).attr('name'));
+				});
 			});
 		});
 	center
