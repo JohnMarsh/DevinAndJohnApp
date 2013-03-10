@@ -1,16 +1,54 @@
 .contentImg{
+<<<<<<< HEAD
     width:95%;
 	height::auto;
+=======
+	height:auto;
+>>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
 	margin:4px;
 }
 
 body {
     font-family: sans-serif;
+<<<<<<< HEAD
 	background:#FFF;
 }
 
 #container {
 	    padding: 5px;
+=======
+	background:#f2f2f2;
+}
+
+p{
+	margin: 0px;
+}
+
+a:link 
+{
+	font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif
+	font-size:13px;
+	color: #1181ea;
+	text-decoration:none;
+}
+a:visited
+{
+	color: #1181ea;
+	text-decoration:none;
+}
+a:hover 
+{
+	color: #333;
+}
+a:active
+{
+	color: #00a6cf;
+	text-decoration:underline;
+}
+
+#container {
+	padding: 5px;
+>>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
 }
 
 .itemTall {
@@ -21,10 +59,16 @@ body {
 }
 
 .item.Wide {
+<<<<<<< HEAD
 	width: 200px;
     float: left;
     background: #CCC;
 	margin: 4px;
+=======
+    float: left;
+    background: #CCC;
+	margin: 2px;
+>>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
 	border:thin;
 }
 
@@ -39,7 +83,11 @@ body {
 .centeredInDiv{
 	text-align: center;
 	vertical-align: middle;
+<<<<<<< HEAD
 	min-height: 10em;
+=======
+	/*min-height: 10em;*/
+>>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
     display: table-cell;	
 	font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
 	font-size:13px;
@@ -71,14 +119,30 @@ CSS for An Object Box
 }
 
 .haveLikedDiv{
+<<<<<<< HEAD
 	height: 30px;
+=======
+>>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
 	width: 140px;
 	display: none;
 }
 
 .likesVsDislikesDiv{
+<<<<<<< HEAD
 	height: 30px;
 	width: 140px;
 	display: none;
 	color: #0C0;
+=======
+	width: 140px;
+	display: none;
+}
+
+.greenP{
+	color: #0C0;
+}
+
+.redP{
+	color: #903;
+>>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
 }
