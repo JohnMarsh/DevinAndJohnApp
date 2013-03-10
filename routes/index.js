@@ -1,47 +1,32 @@
-
-// A function which returns a database object which has numerous
-// prototypes for making queries to the database. 
-function theDatabase(){
-	
-	// Sets up database
-	var mysql      = require('mysql');
-	var connection = mysql.createConnection({
-	  host     : 'localhost',
-	  user     : 'root',
-	  password : 'ddnddn',
-	  database : 'n23n7wfhs9a99dd3',
-	});
-	
-	connection.connect();
-	
-	// The database object to be returned
-	var db = {};
-	
-	// Function which gets a specific number of users from the databse
-	// Takes start number, number of rows and a callback
-	db.getUsers = function(start, num, callback) {
-		var query = 'SELECT * from Users LIMIT ' + start + ', ' + num;
-		connection.query(query, function(err, rows, fields) {
-		  if (err){ console.log('ERROR CONNECTING TO MYSQL'); throw err;};
-		  
-		  callback(rows);
-	
-		});
-	}
-	
-	return db;	
-}
+database = require('../db')
+// Gets the database object
+var db = database.database();
 
 exports.index = function(req, res){
-	console.log('Test');
 	
-	// Gets the database object
-	db = theDatabase();
+	// Function to do remainder of work after db query is finished
+<<<<<<< HEAD
+	doOtherStuff = function(theContent, theUser){
+			console.log('The userinfo is: ', theUser);
+			res.render("index.jade", { title: 'Home', variable:{content: theContent, user: theUser} });
+	};
 	
-	// Performs a query for getting the first user
-	db.getUsers(0, 1, function(theContent) {
-		console.log('The content is: ', theContent[0]);
+	// Gets the categories from the database
+	db.getContent(0, 100, 'Content.DateTime', function(theContent) {
+		db.getUser(1, function(theUser) {
+			doOtherStuff(theContent, theUser);
+  		});
   	});
 	
-	res.render('index', { title: 'Hello' });
+=======
+	doOtherStuff = function(theUser){
+			console.log('The userinfo is: ', theUser);
+			res.render("index.jade", { title: 'Home', variable:{user: theUser} });
+	};
+	
+	// Gets the current user from database
+	db.getUser(1, function(theUser) {
+		doOtherStuff(theUser);
+  	});	
+>>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
 };

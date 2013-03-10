@@ -1,7 +1,84 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+.contentImg{
+    width:95%;
+	height::auto;
+	margin:4px;
 }
-a {
-  color: #00b7ff;
+
+body {
+    font-family: sans-serif;
+	background:#FFF;
+}
+
+#container {
+	    padding: 5px;
+}
+
+.itemTall {
+	height: 300px;
+	width: 100px;
+    float: left;
+    background: #CCC;
+}
+
+.item.Wide {
+	width: 200px;
+    float: left;
+    background: #CCC;
+	margin: 4px;
+	border:thin;
+}
+
+.item.w2 {
+    width: 130px;
+}
+
+.item.h2 {
+    height: 130px;
+}
+
+.centeredInDiv{
+	text-align: center;
+	vertical-align: middle;
+	min-height: 10em;
+    display: table-cell;	
+	font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+	font-size:13px;
+}
+
+/* ---------------------------- 
+CSS for An Object Box
+---------------------------- */
+.item.content{
+	background-color: #CCC;
+	text-align: center;
+}
+
+#spacerDiv{
+	height: 30px;
+	width: 20px;	
+}
+
+#likeDiv{
+ 	height: 30px;
+ 	width: 60px;
+	background-color: #0C3;	
+}
+
+#dislikeDiv{
+	height: 30px;
+ 	width: 60px;
+	background-color: #903;
+}
+
+#haveLikedDiv{
+	height: 30px;
+	width: 140px;
+	display: none;
+}
+
+#likesVsDislikesDiv{
+	height: 30px;
+	width: 140px;
+	display: none;
+	color: #0C0;
 }
