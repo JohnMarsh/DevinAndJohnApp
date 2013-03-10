@@ -1,0 +1,16 @@
+extends layout
+
+block content
+	script(type='text/javascript')
+		$(document).ready(function(){
+			var select = document.getElementById("categories"); 
+			var users = !{JSON.stringify(variable.users)}; 
+			for(var i = 0; i < users.length; i++) {
+				var $newStuff = $('<div id="user"/>'
+					+'<a href="/user/'+ users[i].Username +'">'+ users[i].Username +'</a></div>');
+				$('#users').append($newStuff);
+			}
+		});		
+	center
+		h3= title
+		div(id="users")

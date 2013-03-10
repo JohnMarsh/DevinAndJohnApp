@@ -1,0 +1,22 @@
+{
+    "variants": {
+        "resize": {
+            "mini" : "300x200",
+            "preview": "800x600"
+        },
+        "crop": {
+            "thumb": "200x200"
+        }
+    },
+
+    "storage": {
+        "aws": {
+            "key" : "AKIAJMZI3OGINZUKOZCQ",
+            "secret" : "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",
+            "bucket" : "jubtub_avatars"
+        },
+        "dir": {
+            "path" : "./public/images/" 
+        }
+    }
+}

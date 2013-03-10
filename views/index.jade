@@ -1,5 +1,63 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+	script(type='text/javascript')
+		$(document).ready(function(){
+			//Loads masonry
+<<<<<<< HEAD
+			$( '#container' ).masonry( { itemSelector: '.item'} );
+
+			//Loads in content received from server
+			var options = !{JSON.stringify(variable.content)};
+			theUser = !{JSON.stringify(variable.user)}; 
+ 
+			$.getScript("public/javascripts/load_content.js", function(){
+						loadInContent(options, theUser, $('#container'));
+			});
+			$('#container').masonry('reload')
+=======
+			$( '#container' ).masonry( { itemSelector: '.item', 
+				columnWidth:20, 
+				isFitWidth: true
+				} );
+
+			//Loads in content received from server
+			theUser = !{JSON.stringify(variable.user)}; 
+ 
+			$.getScript("public/javascripts/load_content.js", function(){
+				loadInContent(theUser, $('#container'));
+			});
+>>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
+
+			//Sets on click listener for like button of content
+			$(document).delegate("div[id^='likeDiv']", "click", function() {
+				var el = this;
+				console.log('The name is: ' +$(el).attr('name'));
+				$.getScript("public/javascripts/load_content.js", function(){
+<<<<<<< HEAD
+						haveLikedOrDislikedObject(0, $(el).attr('name'));
+=======
+					haveLikedOrDislikedObject(0, $(el).attr('name'));
+>>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
+				});
+			});
+
+			//Sets on click listener for dislike button of content
+			$(document).delegate("div[id^='dislikeDiv']", "click", function() {
+				var el = this;
+				console.log('The name is: ' +$(el).attr('name'));
+				$.getScript("public/javascripts/load_content.js", function(){
+<<<<<<< HEAD
+						haveLikedOrDislikedObject(1, $(el).attr('name'));
+=======
+					haveLikedOrDislikedObject(1, $(el).attr('name'));
+>>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
+				});
+			});
+		});
+	center
+<<<<<<< HEAD
+		h1= "Like or Dislike"
+=======
+>>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
+		div(id="container", style="position: relative;", class="masonry")
