@@ -3,15 +3,11 @@ html
 	head
 		title= title
 		link(rel='stylesheet', href='/public/stylesheets/stylesheet.css')
+		script(src="public/javascripts/require.js")
 		script(src='http://code.jquery.com/jquery-latest.js')
 		script(src='/public/javascripts/jquery.masonry.js')
 		
 	body
-<<<<<<< HEAD
-		a(href="/") Home
-		br
-		a(href="/upload_content") Upload Content
-=======
 		center
 			h1= "Style or Flop"
 			p
@@ -22,6 +18,5 @@ html
 				|  <a href='/users'>Users</a>
 				| - 
 				|  <a href='/upload_content'>Upload Content</a>
->>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
 		block content
 

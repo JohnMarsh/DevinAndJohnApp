@@ -3,20 +3,6 @@ database = require('../db')
 var db = database.database();
 
 exports.userProfile = function(req, res){
-<<<<<<< HEAD
-	
-	// Function to do remainder of work after db query is finished
-	doOtherStuff = function(theUser){
-		console.log('The userinfo is: ', theUser);
-		res.render("user.jade", { title: 'User Profile', variable:{user: theUser} });
-	};
-	
-
-	db.getUserByUsername(req.params.user, function(theUser) {
-		doOtherStuff(theUser);
-  	});	
-};
-=======
 	var userName = req.params.user;
 	var isOkQuery = db.errorCheck(userName);
 	
@@ -56,4 +42,3 @@ exports.users = function(req, res){
 function sendErrorPage(error, res){
 		res.render("error.jade", {title: 'Error Page', error: error});
 }
->>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
