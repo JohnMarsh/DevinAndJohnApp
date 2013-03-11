@@ -5,13 +5,20 @@ function getDatabase(){
 	// Sets up database
 	var mysql      = require('mysql');
 	var connection = mysql.createConnection({
+		/*host     : 'likeordislike555.db.7757889.hostedresource.com',
+		user     : 'likeordislike555',
+	  	password : 'F2e2dfsd4sss!',
+	  	database : 'likeordislike555',*/
 	  host     : 'localhost',
 	  user     : 'root',
-	  password : 'pass',
+	  password : 'ddnddn',
 	  database : 'n23n7wfhs9a99dd3',
 	});
 	
-	connection.connect();
+	connection.connect(function(err) {
+	});
+
+	
 	
 	// The database object to be returned
 	var db = {};
@@ -41,8 +48,6 @@ function getDatabase(){
 		});
 	}
 
-<<<<<<< HEAD
-=======
 	// Function which gets a specific number of content for a specific category
 	db.getContentForCategory = function(start, num, categoryID, order, callback) {
 		var query = 'SELECT * from Content JOIN ContentImages ON Content.ContentID = ' +
@@ -55,7 +60,6 @@ function getDatabase(){
 		});
 	}
 
->>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
 	// Function which gets users info by the userID
 	db.getUser = function(userID, callback) {
 		var query = 'SELECT * from Users JOIN BasicInfo ON Users.userID = BasicInfo.userID'  
@@ -158,8 +162,6 @@ function getDatabase(){
 	
 		});
 	}
-<<<<<<< HEAD
-=======
 
 	// Function which gets a single categores
 	db.getCategory= function(category, callback) {
@@ -173,7 +175,6 @@ function getDatabase(){
 	
 		});
 	}
->>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
 	
 	// Function which adds content to the database
 	db.addContent = function(content, image) {
@@ -194,7 +195,7 @@ function getDatabase(){
 		});
 	}
 	
-	// Function which adds content to the database
+	// Function which gets specific content from the database by content ID
 	db.getSpecificContent = function(contentID, callback) {
 		connection.query('SELECT * FROM Content JOIN ContentImages ON Content.ContentID = ContentImages.ContentID' +
 		'AND Content.ContentID =? LIMIT 1', contentID, function(err, rows, fields) {
@@ -204,20 +205,29 @@ function getDatabase(){
 		  
 		});
 	}
-<<<<<<< HEAD
-	
-	
 
-	
-	
-	
-	
-=======
+	// Function which likes content
+	db.getSpecificContent = function(obj, callback) {
+		connection.query('INSERT INTO Likes SET ?', obj, function(err, rows, fields) {
+			if (err){ console.log('ERROR CONNECTING TO MYSQL');  throw err;};	  
+		  
+		});
+	}
 
 	db.errorCheck = function(query){
 		return true;
 	}
->>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
+
+	db.start = function(){
+		connection.connect(function(err) {
+			console.log("Erorr: Unable to bind connecting to database.")
+		});
+	}
+	db.end = function(){
+		connection.end(function(err) {
+  		// The connection is terminated now
+		});
+	}
 		
 	return db;	
 }
