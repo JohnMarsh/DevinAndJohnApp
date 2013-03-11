@@ -5,13 +5,8 @@
 
 var express = require('express')
   , routes = require('./routes')
-<<<<<<< HEAD
-  , upload = require('./routes/upload')
-  , user = require('./routes/user')
-=======
   , user = require('./routes/user')
   , pages = require('./routes/pages')
->>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
   , db = require('./db')
   , http = require('http')
   , path = require('path')
@@ -20,10 +15,7 @@ var express = require('express')
 var app = express();
 var fs = require('fs');
 
-<<<<<<< HEAD
-=======
 var theDb = db.database();
->>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
 
 var  Alleup = require('alleup');
 var alleup = new Alleup({storage : "aws", config_file: "alleup_config.json"})
@@ -52,15 +44,6 @@ app.get('/', function(req, res, next){
   routes.index(req, res, next);
 });
 
-<<<<<<< HEAD
-app.get('/upload_content', upload.uploadContent);
-
-app.get('/users/:user', user.userProfile);
-
-app.post('/upload',  function(req, res) {
-	var theDB = db.database();
-
-=======
 app.get('/upload_content', pages.uploadContent);
 
 app.get('/user/:user', user.userProfile);
@@ -110,8 +93,21 @@ app.post('/getCategories', function(req, res){
   });
 });
 
+app.post('/posts/likeContent', function(req, res){
+  
+  if(req.body.user != undefined && req.body.content != undefined){
+    var obj = {
+      UserID: req.body.user,
+      ContentID: req.body.content,
+      IsLike: 1
+    };
+    theDb.likeContent(obj, function(theContent) {
+      
+    });
+  }
+});
+
 app.post('/upload',  function(req, res) {
->>>>>>> d404f171194eb6dcedaa55e5324406989df6bb7f
 	// get the temporary location of the file
     var tmp_path = req.files.theImage.path;
     // set where the file should actually exists - in this case it is in the "images" directory
@@ -143,7 +139,7 @@ app.post('/upload',  function(req, res) {
 			Height: height,
 			Width: width
 		};
-		theDB.addContent(newContent, contentImage);
+		theDb.addContent(newContent, contentImage);
 
 		console.log(contentImage.FileName + ' ' + contentImage.Height);
 	};
