@@ -2,13 +2,26 @@ doctype 5
 html
 	head
 		title= title
-		link(rel='stylesheet', href='public/stylesheets/stylesheet.css')
-		script(src='http://code.jquery.com/jquery-latest.js')
+		link(rel='stylesheet', href='/public/stylesheets/stylesheet.css')
+		link(rel='stylesheet', href='/public/stylesheets/jquery.jqplot.min.css')
+		script(src="/public/javascripts/require.js")
+		script(src='/public/javascripts/jquery-1.7.1.min.js')
 		script(src='/public/javascripts/jquery.masonry.js')
-		
+		script(src='/public/javascripts/jquery.infinitescroll.min.js');
+		script(src='/public/javascripts/load_content.js');
+		script(src='/public/javascripts/jquery.bpopup-0.9.0.min.js')
+		script(src='/public/javascripts/jquery.jqplot.min.js')
+
 	body
-		a(href="/") Home
-		br
-		a(href="/upload_content") Upload Content
+		center
+			h1= "Style or Flop"
+			p
+				|  <a href='/'>Home</a>
+				| - 
+				|  <a href='/categories'>Categories</a>
+				| - 
+				|  <a href='/users'>Users</a>
+				| - 
+				|  <a href='/upload_content'>Upload Content</a>
 		block content
 

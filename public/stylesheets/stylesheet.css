@@ -1,16 +1,41 @@
 .contentImg{
-    width:95%;
-	height::auto;
+	height:auto;
 	margin:4px;
 }
 
 body {
     font-family: sans-serif;
-	background:#FFF;
+	background:#f2f2f2;
+}
+
+p{
+	margin: 0px;
+}
+
+a:link 
+{
+	font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif
+	font-size:13px;
+	color: #1181ea;
+	text-decoration:none;
+}
+a:visited
+{
+	color: #1181ea;
+	text-decoration:none;
+}
+a:hover 
+{
+	color: #333;
+}
+a:active
+{
+	color: #00a6cf;
+	text-decoration:underline;
 }
 
 #container {
-	    padding: 5px;
+	padding: 5px;
 }
 
 .itemTall {
@@ -21,10 +46,9 @@ body {
 }
 
 .item.Wide {
-	width: 200px;
     float: left;
     background: #CCC;
-	margin: 4px;
+	margin: 2px;
 	border:thin;
 }
 
@@ -39,10 +63,17 @@ body {
 .centeredInDiv{
 	text-align: center;
 	vertical-align: middle;
-	min-height: 10em;
+	/*min-height: 10em;*/
     display: table-cell;	
 	font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
 	font-size:13px;
+	cursor:default;
+}
+
+.UserInfoBox{
+	width:500px;
+	background-color: #e1e1e1;
+	margin: 5px;
 }
 
 /* ---------------------------- 
@@ -53,32 +84,41 @@ CSS for An Object Box
 	text-align: center;
 }
 
-#spacerDiv{
+.spacerDiv{
 	height: 30px;
 	width: 20px;	
 }
 
-#likeDiv{
+.likeDiv{
  	height: 30px;
  	width: 60px;
 	background-color: #0C3;	
 }
 
-#dislikeDiv{
+.dislikeDiv{
 	height: 30px;
  	width: 60px;
 	background-color: #903;
 }
 
-#haveLikedDiv{
-	height: 30px;
+.haveLikedDiv{
 	width: 140px;
 	display: none;
 }
 
-#likesVsDislikesDiv{
-	height: 30px;
+.userHaveLikedDiv{
+	width: 140px;
+}
+
+.likesVsDislikesDiv{
 	width: 140px;
 	display: none;
+}
+
+.greenP{
 	color: #0C0;
+}
+
+.redP{
+	color: #903;
 }

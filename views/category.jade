@@ -1,0 +1,13 @@
+extends layout
+
+block content
+	script(type='text/javascript')
+		$(document).ready(function(){
+			//Loads in content received from server
+			theUser = !{JSON.stringify(variable.user)}; 
+			theCategory = !{JSON.stringify(variable.category)}; 
+ 
+			LoadContentFunctions.initializeCategoryPage(theCategory, theUser);
+		});
+	center
+		div(id="container", style="position: relative;", class="masonry")

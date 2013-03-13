@@ -1,42 +1,15 @@
 extends layout
 
 block content
+	script(src='/public/javascripts/jqplot.donutRenderer.min.js')
+	script(src='/public/javascripts/jqplot.pieRenderer.min.js')
 	script(type='text/javascript')
-		// Function which handles a user liking or disliking a object
-		haveLikedOrDislikedObject = function (res){
-			$("#likeAndDislikeDiv").fadeOut(400, function(){
-				$("#haveLikedDiv").fadeIn(1000);
-				$("#likesVsDislikesDiv").fadeIn(1000);
-			});
-			$("#likesVsDislikesDiv").text("+114");
-			if(res == 0){
-				//$.post("likeordislike.php", { id: "1", action: "1" } );
-				$("#haveLikedDiv").text("You like this.");
-			} else{
-				//$.post("likeordislike.php", { id: "1", action: "2" } );
-				$("#haveLikedDiv").text("You dislike this.");
-			}
-		};
 		$(document).ready(function(){
-			$( '#container' ).masonry( { itemSelector: '.item'} );
-			$.getScript("public/javascripts/load_content.js", function(){
-						loadInContent(options, $('#container'));
-			});
-			var options = !{JSON.stringify(variable.content)}; 
-			$('#container').masonry('reload')
-			// Handles clicking of like or dislike buttons
-			$("#dislikeDiv").click(function(){
-				haveLikedOrDislikedObject(1);
-			});
-			$("#likeDiv").click(function(){
-				haveLikedOrDislikedObject(0);
-			});
-			$(document).delegate('#likeDiv', 'click',function() {
-				console.log('The name is: ' +$(this).name);
-				haveLikedOrDislikedObject(0);
-				return false;
-			});
+			var tempUser = !{JSON.stringify(variable.user)}; 
+			LoadContentFunctions.initializeContentPage(tempUser);
 		});
 	center
-		h1= "Like or Dislike"
 		div(id="container", style="position: relative;", class="masonry")
+
+		nav(id="page-nav")
+			a(href="pages/2.html")

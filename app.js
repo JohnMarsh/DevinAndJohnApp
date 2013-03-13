@@ -5,7 +5,8 @@
 
 var express = require('express')
   , routes = require('./routes')
-  , upload = require('./routes/upload')
+  , user = require('./routes/user')
+  , pages = require('./routes/pages')
   , db = require('./db')
   , http = require('http')
   , path = require('path')
@@ -14,9 +15,11 @@ var express = require('express')
 var app = express();
 var fs = require('fs');
 
+var theDb = db.database();
 
 var  Alleup = require('alleup');
 var alleup = new Alleup({storage : "aws", config_file: "alleup_config.json"})
+
 
 app.configure(function(){
   app.set('port', process.env.PORT || 4006);
@@ -39,14 +42,139 @@ app.configure('development', function(){
 });
 
 app.get('/', function(req, res, next){
-        routes.index(req, res, next);
+  routes.index(req, res, next);
 });
 
-app.get('/upload_content', upload.uploadContent);
+app.get('/upload_content', pages.uploadContent);
+
+app.get('/user/:user', user.userProfile);
+app.get('/users', user.users);
+
+app.get('/category/:category', pages.category);
+app.get('/categories', pages.categories)
+
+app.post('/getContent', function(req, res){
+  if(req.body.startNum != undefined && req.body.endNum != undefined){
+    function doOtherStuff(content){
+      res.send(content);
+    }
+
+    // Gets the categories from the database
+    theDb.getContent(req.body.startNum, req.body.endNum, 'Content.DateTime', function(theContent) {
+      doOtherStuff(theContent);
+    });
+  } else{
+    res.send(undefined);
+  }
+});
+
+/*andomLikes = function(content){
+  for(var z=0; z<1000; z++){
+    for(var i =0; i<content.length; i++){
+      var obj = {
+          UserID: getRandomInt(0,10000),
+          ContentID: content[i].ContentID,
+          IsLike: getRandomInt(0,1),
+        };
+        theDb.likeContent(obj, function(numberOfLikes) {
+          
+        });   
+    }
+  }
+}
+
+theDb.getContentIDs(0,1000,'ContentID', randomLikes);
+
+function getRandomInt (min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+}*/
+
+// Gets the content joined with if the user as liked table
+app.post('/getContentFromUser', function(req, res){
+  if(req.body.startNum != undefined && req.body.endNum != undefined && req.body.userID != undefined){
+    function doOtherStuff(content){
+    
+      res.send(content);
+    }
+
+    // Gets the content 
+    theDb.getContentFromLoggedInUser(req.body.startNum, req.body.endNum, 'Content.DateTime', req.body.userID, function(theContent) {
+      doOtherStuff(theContent);
+    });
+  } else{
+    res.send(undefined);
+  }
+});
+
+// Gets the content for a specific users activity
+app.post('/getContentForUser', function(req, res){
+  if(req.body.startNum != undefined && req.body.endNum != undefined && req.body.userID != undefined){
+    function doOtherStuff(content){
+    
+      res.send(content);
+    }
+
+    // Gets the content
+    theDb.getContentForUser(req.body.startNum, req.body.endNum, 'Likes.DateTime', req.body.userID, function(theContent) {
+      doOtherStuff(theContent);
+    });
+  } else{
+    res.send(undefined);
+  }
+});
+
+app.post('/getContentForCategory', function(req, res){
+  if(req.body.startNum != undefined && req.body.endNum != undefined && req.body.category!=undefined){
+    function doOtherStuff(content){
+      
+      res.send(content);
+    }
+
+    // Gets the categories from the database
+    theDb.getContentForCategory(req.body.startNum, req.body.endNum, req.body.category, 'Content.DateTime', function(theContent) {
+      doOtherStuff(theContent);
+    });
+  } else{
+    res.send(undefined);
+  }
+});
+
+app.post('/getCategories', function(req, res){
+  function doOtherStuff(cat){
+    res.send(cat);
+  }
+
+    // Gets the categories from the database
+  theDb.getCategories(function(theContent) {
+    doOtherStuff(theContent);
+  });
+});
+
+app.post('/likeContent', function(req, res){
+
+  sendBack = function(numberOfLikes){
+    var sendObj = {
+      numberOfLikes: numberOfLikes
+    }
+    console.log("Sending:"+numberOfLikes );
+    res.send(sendObj);
+  }
+  
+  if(req.body.user != undefined && req.body.content != undefined && req.body.isLike != undefined){
+    var obj = {
+      UserID: req.body.user,
+      ContentID: req.body.content,
+      IsLike: req.body.isLike,
+    };
+    theDb.likeContent(obj, function(numberOfLikes) {
+      sendBack(numberOfLikes);
+    }); 
+  } else{
+    console.log("Post");
+  }
+});
 
 app.post('/upload',  function(req, res) {
-	var theDB = db.database();
-
 	// get the temporary location of the file
     var tmp_path = req.files.theImage.path;
     // set where the file should actually exists - in this case it is in the "images" directory
@@ -70,7 +198,8 @@ app.post('/upload',  function(req, res) {
 			UploaderID: 1,
 			CategoryID: req.body.categories,
 			Likes: 0,
-			Dislikes: 0
+			Dislikes: 0,
+      Ratio: 0
 		};
 		
 		var contentImage = {
@@ -78,7 +207,18 @@ app.post('/upload',  function(req, res) {
 			Height: height,
 			Width: width
 		};
-		theDB.addContent(newContent, contentImage);
+
+    function convertImage(id){
+      im.resize({
+      srcPath: __dirname+'/public/images/'+req.files.theImage.name,
+      dstPath: __dirname+'/public/images/'+id+'-small.png',
+      width:   200
+      }, function(err, stdout, stderr){
+        if (err) throw err
+      });
+    }
+
+		theDb.addContent(newContent, contentImage, convertImage);
 
 		console.log(contentImage.FileName + ' ' + contentImage.Height);
 	};
