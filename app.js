@@ -7,6 +7,7 @@ var express = require('express')
   , routes = require('./routes')
   , user = require('./routes/user')
   , pages = require('./routes/pages')
+  , register = require('./routes/register')
   , db = require('./db')
   , http = require('http')
   , path = require('path')
@@ -49,6 +50,8 @@ app.get('/upload_content', pages.uploadContent);
 
 app.get('/user/:user', user.userProfile);
 app.get('/users', user.users);
+
+app.get('/register', register.register);
 
 app.get('/category/:category', pages.category);
 app.get('/categories', pages.categories)
@@ -230,6 +233,24 @@ app.post('/upload',  function(req, res) {
 	})
 	
 	res.redirect("/upload_content");
+});
+
+app.post("/register", function(req,res){
+
+    var user = {
+      username:  req.body.username,
+      password:  req.body.password,
+      firstName: req.body.firstName,
+      lastName:  req.body.lastName,
+      email:     req.body.email,
+      birthday:  req.body.birthday,
+      country:   req.body.country,
+      city:      req.body.city
+    }
+
+    theDb.register(user);
+    
+    res.redirect("/users");
 });
 
 app.post("/login", function(req,res){

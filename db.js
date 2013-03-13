@@ -14,14 +14,69 @@ function getDatabase(){
 	  password : 'ddnddn',
 	  database : 'n23n7wfhs9a99dd3',
 	});
+
+	var queues = require('mysql-queues');
 	
 	connection.connect(function(err) {
 	});
 
-	
+	const DEBUG = true;
+	queues(connection, DEBUG);
+
 	
 	// The database object to be returned
 	var db = {};
+
+		//function to register a user
+	db.register = function(user){
+
+		 console.log("In the registration function");
+
+
+		var trans = connection.startTransaction();
+
+		//inserting into the user list
+		trans.query('INSERT INTO Users (Username, DateTime) VALUES (' +  "'" + user.username + "'" +  ', CURRENT_TIMESTAMP )',
+		function(err, result) {
+    		if(err){
+    			console.log('ERROR CONNECTING TO MYSQL'); throw err;
+        		trans.rollback();
+        	}
+    		else{
+    			console.log("first query successful");
+
+    			user.userId = result.insertId;
+    			console.log(result.resultId);
+    			trans.query('INSERT INTO BasicInfo (UserID, FirstName,	LastName, 	Email, 	Birthday, Country, City ) VALUES ('
+    			 + "'" +  user.userId + "'" + ',' + "'" +  user.firstName + "'" +  ',' + "'" +  user.lastName + "'" +  ',' + "'" + 
+    			  user.email + "'" +  ',' + "'" +  user.birthday + "'" +  ',' + "'" +  user.country + "'" +  ',' + "'" +  user.city + "'" +  ')',
+	   			function(err, info) {
+    				if(err){
+    					console.log('ERROR CONNECTING TO MYSQL');  throw err;
+        				trans.rollback();
+       				}
+    			else{
+    				console.log("second query successful");
+
+                	trans.query('INSERT INTO UserPassword (UserID, password) VALUES (' + "'" +  user.userId + "'" +  ',' + "'" +   user.password + "'" +  ')',
+					function(err, info) {
+    					if(err){
+        					trans.rollback();
+        				console.log('ERROR CONNECTING TO MYSQL');  throw err;
+        				}	
+    					else
+    					    console.log("Third query successful");
+
+            				trans.commit();
+       					});
+                	}
+                });
+            }
+        });
+    	console.log("before the execute");
+    	trans.execute();
+    
+    }
 	
 	// Function which gets a specific number of users from the database
 	// Takes start number, number of rows, order, and a callback

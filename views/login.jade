@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  h1= title
+  p Login
+  div
+    form(action="/login", method="post")
+        div.control-group.input-append
+            input(type="text", name="username")
+            label.add-on(for="username") Username
+        div.control-group.input-append
+            input(type="password", name="password")
+            label.add-on(for="password") Password
+
+        button(type="submit") Register
+
