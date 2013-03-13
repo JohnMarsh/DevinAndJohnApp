@@ -5,15 +5,18 @@
 
 var express = require('express')
   , routes = require('./routes')
-  , upload = require('./routes/upload')
+  , user = require('./routes/user')
+  , register = require('./routes/register')
+  , pages = require('./routes/pages')
   , db = require('./db')
   , http = require('http')
   , path = require('path')
   , im = require('imagemagick');
-;
+
 var app = express();
 var fs = require('fs');
 
+var theDb = db.database();
 
 var  Alleup = require('alleup');
 var alleup = new Alleup({storage : "aws", config_file: "alleup_config.json"})
@@ -39,14 +42,76 @@ app.configure('development', function(){
 });
 
 app.get('/', function(req, res, next){
-        routes.index(req, res, next);
+  routes.index(req, res, next);
 });
 
-app.get('/upload_content', upload.uploadContent);
+app.get('/upload_content', pages.uploadContent);
+
+app.get('/user/:user', user.userProfile);
+app.get('/users', user.users);
+
+app.get('/register', register.register);
+
+
+app.get('/category/:category', pages.category);
+app.get('/categories', pages.categories)
+
+app.post('/getContent', function(req, res){
+  if(req.body.startNum != undefined && req.body.endNum != undefined){
+    function doOtherStuff(content){
+      res.send(content);
+    }
+
+    // Gets the categories from the database
+    theDb.getContent(req.body.startNum, req.body.endNum, 'Content.DateTime', function(theContent) {
+      doOtherStuff(theContent);
+    });
+  } else{
+    res.send(undefined);
+  }
+});
+
+app.post('/getContentForCategory', function(req, res){
+  if(req.body.startNum != undefined && req.body.endNum != undefined && req.body.category!=undefined){
+    function doOtherStuff(content){
+      res.send(content);
+    }
+
+    // Gets the categories from the database
+    theDb.getContentForCategory(req.body.startNum, req.body.endNum, req.body.category, 'Content.DateTime', function(theContent) {
+      doOtherStuff(theContent);
+    });
+  } else{
+    res.send(undefined);
+  }
+});
+
+app.post('/getCategories', function(req, res){
+  function doOtherStuff(cat){
+    res.send(cat);
+  }
+
+    // Gets the categories from the database
+  theDb.getCategories(function(theContent) {
+    doOtherStuff(theContent);
+  });
+});
+
+app.post('/posts/likeContent', function(req, res){
+  
+  if(req.body.user != undefined && req.body.content != undefined){
+    var obj = {
+      UserID: req.body.user,
+      ContentID: req.body.content,
+      IsLike: 1
+    };
+    theDb.likeContent(obj, function(theContent) {
+      
+    });
+  }
+});
 
 app.post('/upload',  function(req, res) {
-	var theDB = db.database();
-
 	// get the temporary location of the file
     var tmp_path = req.files.theImage.path;
     // set where the file should actually exists - in this case it is in the "images" directory
@@ -78,7 +143,7 @@ app.post('/upload',  function(req, res) {
 			Height: height,
 			Width: width
 		};
-		theDB.addContent(newContent, contentImage);
+		theDb.addContent(newContent, contentImage);
 
 		console.log(contentImage.FileName + ' ' + contentImage.Height);
 	};
@@ -90,6 +155,24 @@ app.post('/upload',  function(req, res) {
 	})
 	
 	res.redirect("/upload_content");
+});
+
+app.post("/register", function(req,res){
+
+    var user = {
+      username:  req.body.username,
+      password:  req.body.password,
+      firstName: req.body.firstName,
+      lastName:  req.body.lastName,
+      email:     req.body.email,
+      birthday:  req.body.birthday,
+      country:   req.body.country,
+      city:      req.body.city
+    }
+
+    theDb.register(user);
+    
+    res.redirect("/users");
 });
 
 app.post("/login", function(req,res){

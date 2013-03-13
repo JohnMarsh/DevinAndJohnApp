@@ -1,0 +1,30 @@
+extends layout
+
+block content
+	script(type='text/javascript')
+		$(document).ready(function(){
+			var select = document.getElementById("categories"); 
+			var options = !{JSON.stringify(variable.categories)}; 
+			for(var i = 0; i < options.length; i++) {
+				var opt = options[i];
+				var el = document.createElement("option");
+				console.log("Added this category to dropdown: " + options[i]);
+				el.textContent = options[i].Name;
+				el.value = options[i].CategoryID;
+				select.appendChild(el);
+			}
+		});		
+	center
+		h1= title
+		form(action="/upload", enctype="multipart/form-data", method="post")
+			p Content title:
+			input(type="text", name="theName")
+			br
+			p Content image:
+			input(type="file", name="theImage", multiple="multiple")
+			br
+			p Category:
+			select(name='categories', id='categories') 
+			br
+			br
+			input(type="submit", value="Upload")

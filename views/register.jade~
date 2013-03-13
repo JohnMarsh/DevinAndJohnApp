@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  h1= title
+  p Registration page
+  - if(error)
+    div.alert-error #{error}
+  div
+    form(action="/register", method="post")
+        div.control-group.input-append
+            input(type="text", name="username")
+            label.add-on(for="username") Username
+        div.control-group.input-append
+            input(type="password", name="password")
+            label.add-on(for="password") Password
+        div.control-group.input-append
+            input(type="email", name="email")
+            label.add-on(for="email") Email
+        div.control-group.input-append
+            input(type="birthday", name="birthday")
+            label.add-on(for="birthday") Birthday
+        div.control-group.input-append
+            input(type="country", name="country")
+            label.add-on(for="country") Country
+        div.control-group.input-append
+            input(type="city", name="city")
+            label.add-on(for="city") City
+
+            
+        button#register(type="button") Register
