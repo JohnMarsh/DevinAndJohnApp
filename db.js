@@ -79,6 +79,45 @@ function getDatabase(){
     	trans.execute();
     
     }
+
+    db.findUser = function(username, callback){
+    	console.log("finding userID with username:"  + username);
+		var query = 'SELECT'+
+					' UserID'+
+					' FROM Users'+  
+					' WHERE Users.Username=? LIMIT 1';
+		  connection.query(query, [username], function(err, rows, fields) {
+		  if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(undefined); throw err;};
+		  	if(rows!=undefined){
+		  		if(rows[0] != undefined)
+		  			callback(rows[0].UserID);
+		  		else
+		  			callback(undefined);
+		  }
+		  else
+		  	  callback(undefined);
+		});
+	}
+
+    db.findPassword = function(userID, callback){
+    	console.log("finding password with userID:"  + userID);
+
+				var query = 'SELECT'+
+					' Password'+
+					' FROM UserPassword'+  
+					' WHERE UserPassword.UserID=? LIMIT 1';
+		  connection.query(query, [userID], function(err, rows, fields) {
+		  if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(undefined); throw err;};
+		  if(rows != undefined){
+		  	console.log("calling callback with value:"  + rows[0].Password);
+		  	callback(rows[0].Password);
+		  }	
+		  else{
+		  	console.log("calling callback with undefined");
+		  	callback(undefined);
+		  }	
+		});
+	}
 	
 	
 	// Function which gets a specific number of users from the database

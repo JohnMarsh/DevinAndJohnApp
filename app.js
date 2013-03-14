@@ -7,18 +7,22 @@ var express = require('express')
   , routes = require('./routes')
   , user = require('./routes/user')
   , register = require('./routes/register')
+  , login = require('./routes/login')
   , pages = require('./routes/pages')
+  , profile = require('./routes/profile')
   , db = require('./db')
   , http = require('http')
   , path = require('path')
-  , im = require('imagemagick');
+  , bcrypt = require("bcrypt") //hashing algorithm
+  , im = require('imagemagick')
+  , MySQLSessionStore = require('connect-mysql-session')(express);
 
 var app = express();
 var fs = require('fs');
 
 var theDb = db.database();
 
-var  Alleup = require('alleup');
+var Alleup = require('alleup');
 var alleup = new Alleup({storage : "aws", config_file: "alleup_config.json"})
 
 app.configure(function(){
@@ -31,26 +35,37 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use("/public", express.static(__dirname + '/public'));
   app.use(express.cookieParser());
-  app.use(express.session({ secret: 'keyboard cat'}));
+  app.use(express.session({
+     store: new MySQLSessionStore("n23n7wfhs9a99dd3", "root", "lateralus")
+    ,secret: "keyboard cat"
+    ,cookie: {maxAge: 60000 * 20} // 20 minutes
+    }));
   app.use(app.router);
   app.use(require('stylus').middleware(__dirname + '/public'));
   app.use(express.static(path.join(__dirname, 'public')));
 });
+
 
 app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
 app.get('/', function(req, res, next){
-  routes.index(req, res, next);
+    routes.index(req, res, next);
 });
 
 app.get('/upload_content', pages.uploadContent);
 
 app.get('/user/:user', user.userProfile);
+
 app.get('/users', user.users);
 
 app.get('/register', register.register);
+
+app.get('/login', login.login);
+
+
+app.get('/profile', profile.profile);
 
 
 app.get('/category/:category', pages.category);
@@ -161,7 +176,6 @@ app.post("/register", function(req,res){
 
     var user = {
       username:  req.body.username,
-      password:  req.body.password,
       firstName: req.body.firstName,
       lastName:  req.body.lastName,
       email:     req.body.email,
@@ -169,20 +183,82 @@ app.post("/register", function(req,res){
       country:   req.body.country,
       city:      req.body.city
     }
+      //generate a salt, with 10 rounds (2^10 iterations)
+    bcrypt.genSalt(10, function(err, salt) {
+      //hash the given password using the salt we generated
+      bcrypt.hash(req.body.password, salt, function(err, hash) {
+        console.log("in the hash callback " + hash);
+        user.password = hash;  
 
-    theDb.register(user);
+
+        theDb.register(user); 
+
+      }); 
+    });
     
-    res.redirect("/users");
-});
-
-app.post("/login", function(req,res){
-    db.login(req, req.body.username);
-    res.redirect("/users");
-});
-
-app.post("/logout", function(req,res){
-    db.logout(req);
     res.redirect("/");
+});
+
+app.post("/login", function(req, res){
+  var username = req.body.username;
+  var password = req.body.password;
+  var userId;
+
+  console.log("finding userID with username:"  + username);
+
+
+  //Search the Database for a User with the given username
+  theDb.findUser(username, function(users){
+
+    console.log("in the find user callback");
+
+    console.log(" users is  "  + users);
+
+    //we couldn't find a user with that name
+    if(users === undefined){
+      console.log("user was undefined ");
+      res.redirect("/?error=invalid username or password"); 
+      return;
+    }
+    else 
+      console.log(" userID is:"  + users);
+      userId = users;
+      theDb.findPassword(userId, function(hash){
+            //we couldn't find a user with that name
+            if(password === undefined){
+              console.log("password was undefined ");
+              res.redirect("/?error=invalid username or password"); 
+              return;
+            }  
+            else {
+                console.log("password from database is " + hash );
+                bcrypt.genSalt(10, function(err, salt) {
+                  bcrypt.hash(password, salt, function(err, newhash) {
+                    console.log("comparing " + newhash + " to " + hash);
+                   });
+                });
+                bcrypt.compare(password, hash, function(err, authenticated){
+                  if(authenticated){
+                    console.log("was authenticated adding this username to session: " + username );
+                    req.session.username = username;
+                    res.redirect("/profile");
+                  }else{
+                    console.log("no password match");
+                    res.redirect("/?error=invalid username or password"); 
+                  }
+                });
+            }    
+          });
+    });
+});
+
+app.get("/logout", function(req, res){
+  req.session.destroy(function(err){
+      if(err){
+          console.log("Error: %s", err);
+      }
+      res.redirect("/");
+  }); 
 });
 
 http.createServer(app).listen(app.get('port'), function(){
