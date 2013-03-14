@@ -1,12 +1,16 @@
 LoadContentFunctions = (function(){
 
+//----------------------------------------------------------------------------//
+// Variables                                                                  //
+//----------------------------------------------------------------------------//
 
-	var currentNumberOfContent = 0;
-	var maxNumberOfContent = 1000;
-	var currentTotalContent = 0;
-	var isNoMoreData = false;
-	var content;
-	var theUser;
+	var currentNumberOfContent = 0;				// Total # of contents displayed
+	var maxNumberOfContent = 1000;				// Max number to load
+	var currentTotalContent = 0;				// Total content loaded from server
+	var isNoMoreData = false;					// True if no more data to load
+	var content;								// Array of content
+	var theUser;								// The user
+	var mostRecentContent;						// The most recent content to be loaded
 
 	//The type of load content happening
 	//0 = Content for homepage, user signed in
@@ -14,40 +18,86 @@ LoadContentFunctions = (function(){
 	//Else = User not signed in
 	var typeOfConnection;
 
+//----------------------------------------------------------------------------//
+// Member functions                                                           //
+//----------------------------------------------------------------------------//
+
+	// Does the initial post request for getting content and then calls a funciton
+	// to constinue loading content
 	function getContent(tempUser){
 		$.post("/getContentFromUser", { startNum: 0, endNum: maxNumberOfContent, userID: tempUser.UserID })
 		.done(function(data) {
-			currentTotalContent = data.length;
-			content = data;
-			theUser = tempUser;
-			typeOfConnection = 0;
-			handleLoadingContent();
+			if(data!=undefined){
+				currentTotalContent = data.length;
+				content = data;
+				theUser = tempUser;
+				typeOfConnection = 0;
+				mostRecentContent = content[0];
+				handleLoadingContent();
+			} else{
+				handleError();
+			}
 		});
 	}
 
+	// Does the initial post request for getting content for a specific user and
+	// then calls a funciton to constinue loading content
 	function getContentForUser(tempUser){
 		$.post("/getContentForUser", { startNum: 0, endNum: maxNumberOfContent, userID: tempUser.UserID })
 		.done(function(data) {
-			currentTotalContent = data.length;
-			content = data;
-			theUser = tempUser;
-			typeOfConnection = 1;
-			handleLoadingContent();
+			if(data != undefined){
+				currentTotalContent = data.length;
+				content = data;
+				theUser = tempUser;
+				typeOfConnection = 1;
+				mostRecentContent = content[0];
+				handleLoadingContent();
+			} else{
+				handleError();
+			}
 		});
 	}
 
+	// Does the initial post request for getting content for a specific category and
+	// then calls a funciton to constinue loading content
 	function getContentForCategory(category, tempUser){
-		$.post("/getContentForCategory", { startNum: 0, endNum: maxNumberOfContent, category: category.CategoryID })
+		$.post("/getContentForCategoryFromUser", { startNum: 0, endNum: maxNumberOfContent, category: category.CategoryID,
+		UserID: tempUser.UserID })
 		.done(function(data) {
-			currentTotalContent = data.length;
-			content = data;
-			theUser = tempUser;
-			typeOfConnection = 0;
-			handleLoadingContent();
+			if(data != undefined){
+				currentTotalContent = data.length;
+				content = data;
+				theUser = tempUser;
+				typeOfConnection = 0;
+				mostRecentContent = content[0];
+				handleLoadingContent();
+			}else{
+				handleError();
+			}
 		});
 	}
 
-	// Does the initial load for content
+	// Sets up massonry
+	function handleLoadingContent(){
+		//Loads masonry
+		$( '#container' ).masonry( { itemSelector: '.item', 
+			isFitWidth: true,
+			isAnimated: true
+
+		});
+
+		$(window).scroll(function() {
+			if ($(window).scrollTop() == $(document).height() - $(window).height()) {
+				loadInContent($('#container'));
+			}
+		});
+		
+		//Loads in content received from server
+		loadInContent($('#container'));
+	}
+
+
+	// Called to load data into the container
 	function loadInContent(masonryContainer){
 		if(content != undefined && currentNumberOfContent != currentTotalContent)
 			continueLoading(masonryContainer);
@@ -56,6 +106,7 @@ LoadContentFunctions = (function(){
 		}
 	}
 
+	// Does a loop for adding a specific amount of items to the container
 	function continueLoading(masonryContainer){
 		for(var i = currentNumberOfContent; i < currentNumberOfContent+14; i++) {
 			var tempcontent = content[i];
@@ -66,14 +117,15 @@ LoadContentFunctions = (function(){
 			}
 			appendContent(tempcontent, masonryContainer);
 			
-			if(tempcontent.IsLike != null)
+			if(tempcontent.IsLike != null && tempcontent.IsLike != undefined)
 				displayHasLike(tempcontent.IsLike, tempcontent.ContentID, tempcontent.Ratio);
 			masonryContainer.masonry('reload')
 		}
 		currentNumberOfContent = i;			
-		masonryContainer.masonry('reload')
+		masonryContainer.masonry('reload');
 	}
 
+	// Invoked appendNoMoreDataWarning if it has not been called yet
 	function noMoreData(masonryContainer){
 		if(!isNoMoreData){
 			appendNoMoreDataWarning(masonryContainer);
@@ -82,6 +134,7 @@ LoadContentFunctions = (function(){
 		isNoMoreData = true;
 	}
 
+	// Called to append a no more data object to the container
 	function appendNoMoreDataWarning(masonryContainer){
 		var theString = '<div class="item Wide centeredInDiv dislikeDiv" style="height:40px;'
 		+ 'width: 100%; background-color: #903; vertical-align: middle;">'
@@ -90,7 +143,8 @@ LoadContentFunctions = (function(){
 		masonryContainer.append( $boxes ).masonry( 'appended', $boxes );
 	}
 
-	function appendContent(content, masonryContainer){
+	// Appends a single content to the container based on connection type
+	function appendContent(content, masonryContainer, prepend){
 		var el = document.createElement("option");
 		var theTop = getTop(content);
 		var theBottom = "";
@@ -105,49 +159,38 @@ LoadContentFunctions = (function(){
 
 		var tempString = theTop + theBottom + '</div>'
 		var $boxes = $(tempString);
-		masonryContainer.append( $boxes ).masonry( 'appended', $boxes );
+
+		if(prepend != undefined){
+			masonryContainer.prepend( $boxes ).masonry( 'appended', $boxes );
+		} else{
+			masonryContainer.append( $boxes ).masonry( 'appended', $boxes );
+		}
 	}
 
-	function getRandomInt (min, max) {
-	    return Math.floor(Math.random() * (max - min + 1)) + min;
-	}
-
+	// Gets the top of a content to be appended
 	function getTop(content){
 		var imageWidth;
 		var imageHeight;
 
-		/*  Uncomment for scattered layout 
-		if(content.Height > 0.8*content.Width){
-			imageHeight = (160/content.Width) * content.Height;
-			imageWidth = 160;
-		} else if(content.Height > 0.5*content.Width && content.Height < 0.8*content.Width){
-			imageWidth = getRandomInt(140,180);
-			imageHeight = (imageWidth/content.Width) * content.Height;
-		} else{
-			imageWidth = getRandomInt(180,240);
-			imageHeight = (imageWidth/content.Width) * content.Height;
-		}*/
-
 		imageWidth = 200;
 		imageHeight = (200/content.Width) * content.Height;
 
-		//var imageHeight = (190/content.Width) * content.Height;
 		var bottomHeight = 80;
 		var contentHeight = imageHeight + bottomHeight;
 
 		var theString = '<div class="item Wide" style="height:' + contentHeight 
 			+'px; width: +' + imageWidth + ';"><img class="contentImg" id="ContentImage_'+content.ContentID 
-			+'" width="'+ imageWidth +'" src="/public/images/' + content.ContentID + '-small.png"/><br/>' 
-			+ content.Title+'<br/>';
+			+'" width="'+ imageWidth +'" src="/public/images/' + content.ContentID + '-small.png"/><br />' 
+			+'<b>'+ content.Title+'</b>';
 		return theString;
 	}
 
-
+	// Gets the bottom of a content for connection type 0
 	function getBottomForConnectionType0(content){
 		if(content != undefined){
 
 			// Gets the ratio of likes to dislikes
-			var likesToDislikes = content.Likes - content.Dislikes;			
+			var likesToDislikes = content.Ratio;			
 
 			returnS = '<center> <div id="likeAndDislikeDiv_' + content.ContentID +'">'
 	        +'<div class="centeredInDiv likeDiv" id="likeDiv_' + content.ContentID +'" name="' + content.ContentID +'">like</div>'
@@ -165,6 +208,7 @@ LoadContentFunctions = (function(){
 		return "";	
 	}
 
+	// Gets the bottom of a content for connection type 1
 	function getBottomForConnectionType1(content){
 		if(content != undefined){
 
@@ -185,6 +229,50 @@ LoadContentFunctions = (function(){
 		}
 		return "";	
 	}
+
+	function loadMoreDataFromServer(){
+		if(mostRecentContent != undefined){
+			var d = getMySQLFormatDate(mostRecentContent.DateTime);
+			$.post("/getMoreRecentContentFromUser", { mostRecentContent: d, userID: theUser.UserID })
+			.done(function(data) {
+				if(data!=''){
+					mostRecentContent = data[0];
+					handleLoadingNewContent(data, $('#container'));
+				}
+			});
+		}
+	}
+
+	// Does a loop for adding a specific amount of items to the container
+	function handleLoadingNewContent(data, masonryContainer){
+		for(var i = 0; i < data.length; i++) {
+			var tempcontent = data[i];
+			if(tempcontent == undefined) {
+				break; 
+			}
+			appendContent(tempcontent, masonryContainer, 1);
+			
+			if(tempcontent.IsLike != null && tempcontent.IsLike != undefined)
+				displayHasLike(tempcontent.IsLike, tempcontent.ContentID, tempcontent.Ratio);
+			masonryContainer.masonry('reload')
+		}
+		currentNumberOfContent = i;			
+		masonryContainer.masonry('reload');
+	}
+
+	// Displays pop up asking the user to reload the page
+	function handleError(){
+		$form = $('<div class="errorBox" style="height:100;width:300px;">'+
+			'<p>Congratulations, you broke the site!<br/>Please reload the page.</p></div>');
+		$form.bPopup({
+			escClose: false,
+			modalClose: false
+	    }); 
+	}
+
+//----------------------------------------------------------------------------//
+// Handlers                                                                   //
+//----------------------------------------------------------------------------//
 
 	// Sets on click listener for have liked div to allow a relike
 	$(document).delegate("div[id^='haveLikedDiv']", "click", function() {
@@ -207,17 +295,23 @@ LoadContentFunctions = (function(){
 
 	// TODO: Add pop up window when content is clicked  
 	//Sets on click listener for dislike button of content
-	/*$(document).delegate("img[id^='ContentImage']", "click", function() {
+	$(document).delegate("img[id^='ContentImage']", "click", function() {
 		var el = this;
 		var contentID = $(el).attr('name');
-		$form = $('<div class="contentDisplay" style="height:400px;width:300px; "></div>');
+		$form = $('<div class="contentDisplay" style="height:400px;width:300px; ">Hello</div>');
 		$form.bPopup({
-			contentContainer:'.contentDisplay',
-	        loadUrl: '/categories' //Uses jQuery.load()
 	    });      
-		
-	});*/
+	});
 
+	$(document).delegate("div[id^='loadMoreData']", "click", function() {
+		loadMoreDataFromServer();      
+	});
+
+//----------------------------------------------------------------------------//
+// OnClick Functions                                                          //
+//----------------------------------------------------------------------------//
+
+	// Fades in option to like or dislike
 	function changeLike(contentNumber){
 		$("#likesVsDislikesDiv_" + contentNumber).fadeOut(1000);
 		$("#haveLikedDiv_" + contentNumber).fadeOut(1000, function(){
@@ -260,27 +354,42 @@ LoadContentFunctions = (function(){
 		else
 			$("#haveLikedDiv_" + contentNumber).text("You dislike this.");
 
-		$("#likesVsDislikesDiv_" + contentNumber).text(numLikes);
+
+		if(numLikes > 0){
+			$("#likesVsDislikesDiv_" + contentNumber).css('color','#279c38');
+			$("#likesVsDislikesDiv_" + contentNumber).text('+'+numLikes);
+		} else if(numLikes < 0) {
+			$("#likesVsDislikesDiv_" + contentNumber).css('color','#c01e1e');
+			$("#likesVsDislikesDiv_" + contentNumber).text(numLikes);
+		} else{
+			$("#likesVsDislikesDiv_" + contentNumber).css('color','#c01e1e');
+			$("#likesVsDislikesDiv_" + contentNumber).text('No likes yet.');
+		}
 	}
 
-	function handleLoadingContent(){
-		//Loads masonry
-		$( '#container' ).masonry( { itemSelector: '.item', 
-			isFitWidth: true,
-			isAnimated: true
-
-		});
-
-		$(window).scroll(function() {
-			if ($(window).scrollTop() == $(document).height() - $(window).height()) {
-				loadInContent($('#container'));
-			}
-		});
-		
-		//Loads in content received from server
-		loadInContent($('#container'));
+//----------------------------------------------------------------------------//
+// Utilities                                                                  //
+//----------------------------------------------------------------------------//
+	// Function to get a random integer
+	function getRandomInt (min, max) {
+	    return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
 
+	function getMySQLFormatDate(stringDate){
+		var d = new Date(mostRecentContent.DateTime);
+		var month = d.getMonth()+1;
+		var year = d.getFullYear();
+		var day = d.getDate();
+		var hours = d.getHours();
+		var minutes = d.getMinutes();
+		var seconds = d.getSeconds();
+		var dString = year+'-'+month+'-'+day+' '+hours+':'+minutes+':'+seconds;
+		return dString;
+	}
+
+//----------------------------------------------------------------------------//
+// Public member functions                                                    //
+//----------------------------------------------------------------------------//
 	return{
 		initializeContentPage: function(tempUser){
 			getContent(tempUser);

@@ -15,16 +15,17 @@ block content
 			}
 		});		
 	center
-		h1= title
-		form(action="/upload", enctype="multipart/form-data", method="post")
-			p Content title:
-			input(type="text", name="theName")
-			br
-			p Content image:
-			input(type="file", name="theImage", multiple="multiple")
-			br
-			p Category:
-			select(name='categories', id='categories') 
-			br
-			br
-			input(type="submit", value="Upload")
+			div(class="mainDiv")
+				h3= title
+				form(action="/upload", enctype="multipart/form-data", method="post")
+					p Content title:
+					input(type="text", name="theName")
+					br
+					p Content image:
+					input(type="file", name="theImage", multiple="multiple")
+					br
+					p Category:
+					select(name='categories', id='categories') 
+					br
+					br
+					input(type="submit", value="Upload")

@@ -6,6 +6,7 @@
 body {
     font-family: sans-serif;
 	background:#f2f2f2;
+	height:100%;
 }
 
 p{
@@ -15,7 +16,7 @@ p{
 a:link 
 {
 	font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif
-	font-size:13px;
+	font-size: 13px;
 	color: #1181ea;
 	text-decoration:none;
 }
@@ -34,8 +35,22 @@ a:active
 	text-decoration:underline;
 }
 
+.mainDiv{
+	display: inline-block;
+	width:70%;
+	text-align: center;
+	background-color: #fff;
+	margin: 0px;
+}
+
 #container {
 	padding: 5px;
+}
+
+#main
+{
+	overflow:auto;
+	padding-bottom:150px; /* this needs to be bigger than footer height*/
 }
 
 .itemTall {
@@ -76,6 +91,53 @@ a:active
 	margin: 5px;
 }
 
+.topBar{
+	width:100%;
+	text-align: center;
+	vertical-align: middle;
+	background-color: #ece8e8;
+}
+
+.header{
+    display: inline-block;
+	width:100%;
+	text-align: center;
+	vertical-align: middle;
+	background-color: #ece8e8;
+}
+
+.footer{
+    position: relative;
+	margin-top: -150px; /* negative value of footer height */
+	height: 150px;
+	clear:both;
+	padding-top:20px;
+	color:#fff;
+}
+
+#wrap
+{
+min-height: 100%;
+}
+
+
+.loadMoreData{
+	width:200px;
+	text-align: center;
+	vertical-align: middle;
+	background-color: #ece8e8;
+	cursor:default;
+}
+.loadMoreData:hover { background:#1181ea; }
+
+.errorBox{
+	width:300px;
+	text-align: center;
+	vertical-align: middle;
+	background-color: #ece8e8;
+	cursor:default;
+}
+
 /* ---------------------------- 
 CSS for An Object Box
 ---------------------------- */
@@ -99,6 +161,7 @@ CSS for An Object Box
 	height: 30px;
  	width: 60px;
 	background-color: #903;
+	color: #d3d3d3;
 }
 
 .haveLikedDiv{

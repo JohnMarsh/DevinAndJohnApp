@@ -71,26 +71,56 @@ app.post('/getContent', function(req, res){
   }
 });
 
-/*andomLikes = function(content){
-  for(var z=0; z<1000; z++){
-    for(var i =0; i<content.length; i++){
+randomLikes = function(content){
+  for(var z=0; z<content.length; z++){
+    for(var i=2000; i<3000; i++){
       var obj = {
-          UserID: getRandomInt(0,10000),
-          ContentID: content[i].ContentID,
+          UserID: i,
+          ContentID: content[z].ContentID,
           IsLike: getRandomInt(0,1),
         };
         theDb.likeContent(obj, function(numberOfLikes) {
           
         });   
     }
+    theDb.getNumberOfLikes(content[z].ContentID, function(){});
   }
 }
 
-theDb.getContentIDs(0,1000,'ContentID', randomLikes);
+//theDb.getContentIDs(0,1000,'ContentID', randomLikes);
+
+randomUsers = function(){
+  for(var i = 0; i<400000; i++){
+    var user={
+      username:  makeid(),
+      password:  makeid(),
+      firstName: makeid(),
+      lastName:  "",
+      email:     "test@gmail.com",
+      birthday:  "2011-09-29",
+      country:   "Canada",
+      city:      "Ottawa"
+    }
+    theDb.register(user);
+  }
+}
+
+//randomUsers();
+
+function makeid()
+{
+    var text = "";
+    var possible = "abcdefghijklmnopqrstuvwxyz";
+
+    for( var i=0; i < getRandomInt(4,10); i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
 
 function getRandomInt (min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
-}*/
+}
 
 // Gets the content joined with if the user as liked table
 app.post('/getContentFromUser', function(req, res){
@@ -105,6 +135,27 @@ app.post('/getContentFromUser', function(req, res){
       doOtherStuff(theContent);
     });
   } else{
+    res.send(undefined);
+  }
+});
+
+theDb.getUserIDByUsername("devinlynch", function(userid){
+  console.log(userid);
+});
+
+// Gets new content after a point of time
+app.post('/getMoreRecentContentFromUser', function(req, res){
+  if(req.body.mostRecentContent != undefined && req.body.userID != undefined){
+    function doOtherStuff(content){
+      res.send(content);
+    }
+
+    // Gets the content 
+    theDb.getMoreContentFromLoggedInUser(req.body.mostRecentContent, req.body.userID, function(theContent) {
+      doOtherStuff(theContent);
+    });
+  } else{
+    console.log("Error");
     res.send(undefined);
   }
 });
@@ -126,15 +177,16 @@ app.post('/getContentForUser', function(req, res){
   }
 });
 
-app.post('/getContentForCategory', function(req, res){
-  if(req.body.startNum != undefined && req.body.endNum != undefined && req.body.category!=undefined){
+app.post('/getContentForCategoryFromUser', function(req, res){
+  if(req.body.startNum != undefined && req.body.endNum != undefined && req.body.category!=undefined
+    && req.body.UserID){
     function doOtherStuff(content){
-      
       res.send(content);
     }
 
     // Gets the categories from the database
-    theDb.getContentForCategory(req.body.startNum, req.body.endNum, req.body.category, 'Content.DateTime', function(theContent) {
+    theDb.getContentForCategory(req.body.startNum, req.body.endNum, req.body.category, 'Content.DateTime', 
+      req.body.UserID, function(theContent) {
       doOtherStuff(theContent);
     });
   } else{

@@ -96,7 +96,7 @@ function getDatabase(){
 		var query = 'SELECT * from Content JOIN ContentImages ON Content.ContentID = ' +
 		'ContentImages.ContentID ORDER BY ' + order +  ' LIMIT ' + start + ', ' + num;
 		connection.query(query, function(err, rows, fields) {
-		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getCotent - ' +err); callback(undefined); throw err;};
+		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getCotent - ' +err); callback(undefined);};
 		  
 		  callback(rows);
 	
@@ -108,7 +108,18 @@ function getDatabase(){
 	db.getContentIDs = function(start, num, order, callback) {
 		var query = 'SELECT ContentID from Content ORDER BY ' + order +  ' LIMIT ' + start + ', ' + num;
 		connection.query(query, function(err, rows, fields) {
-		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getContent - ' +err); callback(undefined); throw err;};
+		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getContent - ' +err); callback(undefined);};
+		  
+		  callback(rows);
+	
+		});
+	}
+
+	// Function which gets all user ids from datavase
+	db.getUserIDs = function(callback) {
+		var query = 'SELECT UserID FROM Users';
+		connection.query(query, function(err, rows, fields) {
+		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getContent - ' +err); callback(undefined);};
 		  
 		  callback(rows);
 	
@@ -136,6 +147,28 @@ function getDatabase(){
 		});
 	}
 
+	// Gets content added after a datetime
+	db.getMoreContentFromLoggedInUser = function(date, userID, callback){
+		var query = 
+		'SELECT '+
+		'Content.ContentID, Content.UploaderID, Content.Title, Content.Ratio, Content.DateTime, Content.CategoryID,'+
+		'Likes.UserID, Likes.IsLike, Likes.DateTime AS LikeDateTime,'+
+		'ContentImages.ImageID, ContentImages.FileName, ContentImages.Height, ContentImages.Width '+
+		'FROM Content '+
+		'JOIN ContentImages ON ContentImages.ContentID = Content.ContentID '+
+		'LEFT JOIN Likes ON Likes.ContentID = Content.ContentID '+
+		'AND Likes.UserID='+userID+' '+
+		'WHERE Content.DateTime >\"'+ date+'\"';
+		console.log(query);
+		connection.query(query, function(err, rows, fields) {
+		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getContentFromLoggedInUser - ' +err); callback(undefined); throw err;};
+		  console.log(JSON.stringify(rows));
+		  callback(rows);
+	
+		});
+	}
+
+
 	db.getContentForUser = function(start, num, order, userID, callback){
 		var query = 
 		'SELECT '+
@@ -151,14 +184,13 @@ function getDatabase(){
 		console.log(query);
 		connection.query(query, function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getContentFromLoggedInUser - ' +err); callback(undefined); throw err;};
-		  console.log(JSON.stringify(rows));
 		  callback(rows);
 	
 		});
 	}
 
 	// Function which gets a specific number of content for a specific category
-	db.getContentForCategory = function(start, num, categoryID, order, callback) {
+	db.getContentForCategory = function(start, num, categoryID, order, userID, callback) {
 		var query = 
 		'SELECT '+
 		'Content.ContentID, Content.UploaderID, Content.Title, Content.Ratio, Content.DateTime, Content.CategoryID,'+
@@ -167,9 +199,11 @@ function getDatabase(){
 		'FROM Content '+
 		'JOIN ContentImages ON ContentImages.ContentID = Content.ContentID '+
 		'LEFT JOIN Likes ON Likes.ContentID = Content.ContentID '+
+		'AND Likes.UserID='+userID+' '+
 		'WHERE Content.CategoryID='+categoryID+' '+
 		'ORDER BY '+order+' '+
 		'LIMIT '+start+' , '+num;
+		console.log(query);
 		connection.query(query, function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getCotent - ' +err); callback(undefined); throw err;};
 		  
@@ -195,7 +229,7 @@ function getDatabase(){
 		});
 	}
 
-	// Function which gets users info by the userID
+	// Function which gets users info by the username
 	db.getUserByUsername = function(username, callback) {
 		var query = 'SELECT '+
 					'Users.UserID, Users.Username, Users.DateTime, '+
@@ -208,6 +242,24 @@ function getDatabase(){
 		  if(rows!=undefined)
 		  	callback(rows[0]);
 		  else
+		  	callback(undefined);
+		});
+	}
+
+	// Function which gets users id info by the username
+	db.getUserIDByUsername = function(username, callback) {
+		var query = 'SELECT'+
+					' UserID'+
+					' FROM Users'+  
+					' WHERE Users.Username=? LIMIT 1';
+		connection.query(query, [username], function(err, rows, fields) {
+		  if (err){ console.log('ERROR CONNECTING TO MYSQL: ' +err); callback(undefined); throw err;};
+		  if(rows!=undefined){
+		  	if(rows[0] != undefined)
+		  		callback(rows[0].UserID);
+		  	else
+		  		callback(undefined);
+		  }else
 		  	callback(undefined);
 		});
 	}

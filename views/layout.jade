@@ -2,6 +2,7 @@ doctype 5
 html
 	head
 		title= title
+		link(rel='stylesheet', type='text/css', href='/public/javascripts/bootstrap/css/bootstrap.min.css')
 		link(rel='stylesheet', href='/public/stylesheets/stylesheet.css')
 		link(rel='stylesheet', href='/public/stylesheets/jquery.jqplot.min.css')
 		script(src="/public/javascripts/require.js")
@@ -11,21 +12,27 @@ html
 		script(src='/public/javascripts/load_content.js');
 		script(src='/public/javascripts/jquery.bpopup-0.9.0.min.js')
 		script(src='/public/javascripts/jquery.jqplot.min.js')
+		script(src='/public/javascripts/jquery-validate/jquery-validate.min.js')
+		script(src='/public/javascripts/bootstrap/js/bootstrap.min.js')
+		script(src='/public/javascripts/jquery-ui/js/jquery-ui-1.10.0.custom.min.js')
+		link(rel='stylesheet', type='text/css', href='/public/javascripts/jquery-ui/css/ui-lightness/jquery-ui-1.10.0.custom.min.css')
+		script(src='/public/javascripts/registerJQ.js')
 
 	body
-		center
-			h1= "Style or Flop"
-			p
-				|  <a href='/'>Home</a>
-				| - 
-				|  <a href='/categories'>Categories</a>
-				| - 
-				|  <a href='/users'>Users</a>
-				| - 
-				|  <a href='/upload_content'>Upload Content</a>
-				| -
-				|  <a href='/register'>Register</a>
-				| -
-				|  <a href='/login'>Login</a>
+		div(class="header")
+			h1= "Like VS. Dislike"
+			div(class="topBar")
+				p
+					|  <a href='/'>Home</a>
+					| - 
+					|  <a href='/categories'>Categories</a>
+					| - 
+					|  <a href='/users'>Users</a>
+					| - 
+					|  <a href='/upload_content'>Upload Content</a>
+					| -
+					|  <a href='/register'>Register</a>
+					| -
+					|  <a href='/login'>Login</a>
 		block content
 
