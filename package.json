@@ -10,6 +10,9 @@
     "stylus": "*",
     "mysql": "*",
     "alleup": "*",
-    "mysql-queues": "*"
+    "mysql-queues": "*",
+    "bcrypt": "*",
+    "connect-mysql-session": "*",
+   "imagemagick": "*"
   }
 }

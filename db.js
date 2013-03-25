@@ -11,7 +11,7 @@ function getDatabase(){
 	  	database : 'likeordislike555',*/
 	  host     : 'localhost',
 	  user     : 'root',
-	  password : 'lateralus',
+	  password : 'matrix',
 	  database : 'n23n7wfhs9a99dd3',
 	});
 
@@ -135,6 +135,7 @@ function getDatabase(){
 	// Function which gets a specific number of content from the database
 	// Takes start number, number of rows, order, and a callback
 	db.getContent = function(start, num, order, callback) {
+		console.log("Getting content....");
 		var query = 'SELECT * from Content JOIN ContentImages ON Content.ContentID = ' +
 		'ContentImages.ContentID ORDER BY ' + order +  ' LIMIT ' + start + ', ' + num;
 		connection.query(query, function(err, rows, fields) {

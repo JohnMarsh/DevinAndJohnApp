@@ -12,7 +12,7 @@ block content
 			//Loads in content received from server
 			theUser = !{JSON.stringify(variable.user)}; 
  
-			$.getScript("public/javascripts/load_content.js", function(){
+			$.getScript("/public/javascripts/load_content.js", function(){
 				loadInContent(theUser, $('#container'));
 			});
 			$.post("posts/likeContent", { id: 1, user: theUser.UserID } , function(return_data){

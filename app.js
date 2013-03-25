@@ -36,7 +36,7 @@ app.configure(function(){
   app.use("/public", express.static(__dirname + '/public'));
   app.use(express.cookieParser());
   app.use(express.session({
-     store: new MySQLSessionStore("n23n7wfhs9a99dd3", "root", "lateralus")
+     store: new MySQLSessionStore("n23n7wfhs9a99dd3", "root", "matrix")
     ,secret: "keyboard cat"
     ,cookie: {maxAge: 60000 * 20} // 20 minutes
     }));
@@ -72,6 +72,7 @@ app.get('/category/:category', pages.category);
 app.get('/categories', pages.categories)
 
 app.post('/getContent', function(req, res){
+  console.log("post for get content");
   if(req.body.startNum != undefined && req.body.endNum != undefined){
     function doOtherStuff(content){
       res.send(content);
