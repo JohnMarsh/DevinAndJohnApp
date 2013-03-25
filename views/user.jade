@@ -3,9 +3,7 @@ extends layout
 block content
 	script(src='/public/javascripts/user_profile.js')
 	script(type='text/javascript')
-		var user = !{JSON.stringify(variable.user)};
-		
-		UserProfileFunctions.loadInUser(user);
+		UserProfileFunctions.loadInUser(!{JSON.stringify(variable)});
 
 
 	center
@@ -14,5 +12,6 @@ block content
 			p Name: #{variable.user.FirstName} #{variable.user.LastName}
 			p Birthday: #{variable.user.Birthday}
 			p Location: #{variable.user.City}, #{variable.user.Country}
+		div(class="UserInfoBox", id="StalkersBox")
 		h3 Activity
 		div(id="container", style="position: relative;", class="masonry")

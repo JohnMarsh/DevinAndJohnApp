@@ -9,10 +9,10 @@ exports.index = function(req, res){
 				res.render("index.jade", { title: 'Home', variable:{user: theUser} });
 		};
 		// Gets the current user from database
-		db.getUser(1, function(theUser) {
+		db.getUserByUsername(req.session.username, function(theUser) {
 			doOtherStuff(theUser);
 	  	});	
 	} else{
-		res.render("pleaselogin.jade", {title: 'Please Login'});
+		res.render("login.jade", {title: 'Please Login'});
 	}
 };

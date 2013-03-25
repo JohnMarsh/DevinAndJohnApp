@@ -5,11 +5,15 @@ var db = database.database();
 exports.userProfile = function(req, res){
 	var userName = req.params.user;
 	var isOkQuery = db.errorCheck(userName);
+	var isLoggedIn = false;
+	if(req.session.username != undefined) isLoggedIn = true;
+	console.log(JSON.stringify(req.session));
 	
 	if(isOkQuery && userName != undefined){
 		// Function to do remainder of work after db query is finished
 		doOtherStuff = function(theUser){
-			res.render("user.jade", { title: 'User Profile', variable:{user: theUser} });
+			var isSelf = (theUser.Username == req.session.username);
+			res.render("user.jade", { title: 'User Profile', variable:{user: theUser, isSelf: isSelf} });
 		};
 		
 

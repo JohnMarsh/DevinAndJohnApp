@@ -272,9 +272,11 @@ function getDatabase(){
 		var query = 'SELECT '+
 					'Users.UserID, Users.Username, Users.DateTime, '+
 					'BasicInfo.FirstName, BasicInfo.LastName, BasicInfo.Birthday, BasicInfo.Email, '+
-					'BasicInfo.Country, BasicInfo.City '+
-					' FROM Users JOIN BasicInfo ON Users.UserID = BasicInfo.UserID'+  
-					' WHERE Users.Username=? LIMIT 1';
+					'BasicInfo.Country, BasicInfo.City, UserImages.FileName, UserImages.Height, UserImages.Width '+
+					'FROM Users JOIN BasicInfo ON Users.UserID = BasicInfo.UserID '+
+					'LEFT JOIN UserImages ON Users.UserID = UserImages.UserID '+  
+					'WHERE Users.Username=? LIMIT 1';
+					console.log(query);
 		connection.query(query, [username], function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL: ' +err); callback(undefined); throw err;};
 		  if(rows!=undefined)
@@ -304,12 +306,12 @@ function getDatabase(){
 	
 	// Function which gets the stalker IDs of a user
 	db.getUserStalkers = function(userID, callback) {
-		var query = 'SELECT * from Stalkings WHERE StalkingID=' + userID;
+		var query = 'SELECT * from Stalkings '+
+					'JOIN Users ON Stalkings.StalkerID=Users.UserID '+
+					'WHERE StalkingID=' + userID;
 		connection.query(query, function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(undefined); throw err;};
-		  
-		  callback(rows);
-	
+		  callback(rows);	
 		});
 	}
 	

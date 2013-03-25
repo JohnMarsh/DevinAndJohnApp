@@ -36,7 +36,7 @@ app.configure(function(){
   app.use("/public", express.static(__dirname + '/public'));
   app.use(express.cookieParser());
   app.use(express.session({
-     store: new MySQLSessionStore("n23n7wfhs9a99dd3", "root", "lateralus")
+     store: new MySQLSessionStore("n23n7wfhs9a99dd3", "root", "ddnddn")
     ,secret: "keyboard cat"
     ,cookie: {maxAge: 60000 * 20} // 20 minutes
     }));
@@ -64,7 +64,7 @@ app.get('/category/:category', pages.category);
 app.get('/categories', pages.categories);
 
 app.get('/login', login.login);
-app.get('/profile', profile.profile);
+app.get('/myProfile', profile.profile);
 
 app.post('/getContent', function(req, res){
   if(req.body.startNum != undefined && req.body.endNum != undefined){
@@ -83,7 +83,7 @@ app.post('/getContent', function(req, res){
 
 randomLikes = function(content){
   for(var z=0; z<content.length; z++){
-    for(var i=2000; i<3000; i++){
+    for(var i=22000; i<30000; i++){
       var obj = {
           UserID: i,
           ContentID: content[z].ContentID,
@@ -149,10 +149,6 @@ app.post('/getContentFromUser', function(req, res){
   }
 });
 
-theDb.getUserIDByUsername("devinlynch", function(userid){
-  console.log(userid);
-});
-
 // Gets new content after a point of time
 app.post('/getMoreRecentContentFromUser', function(req, res){
   if(req.body.mostRecentContent != undefined && req.body.userID != undefined){
@@ -197,6 +193,21 @@ app.post('/getContentForCategoryFromUser', function(req, res){
     // Gets the categories from the database
     theDb.getContentForCategory(req.body.startNum, req.body.endNum, req.body.category, 'Content.DateTime', 
       req.body.UserID, function(theContent) {
+      doOtherStuff(theContent);
+    });
+  } else{
+    res.send(undefined);
+  }
+});
+
+app.post('/getStalkersForUser', function(req, res){
+  if(req.body.userID != undefined){
+    function doOtherStuff(stalkers){
+      res.send(stalkers);
+    }
+
+      // Gets the categories from the database
+    theDb.getUserStalkers(req.body.userID, function(theContent) {
       doOtherStuff(theContent);
     });
   } else{
@@ -366,7 +377,7 @@ app.post("/login", function(req, res){
                   if(authenticated){
                     console.log("was authenticated adding this username to session: " + username );
                     req.session.username = username;
-                    res.redirect("/profile");
+                    res.redirect("/");
                   }else{
                     console.log("no password match");
                     res.redirect("/?error=invalid username or password"); 
