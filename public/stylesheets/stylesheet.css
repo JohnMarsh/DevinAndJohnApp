@@ -45,6 +45,7 @@ a:active
 
 #container {
 	padding: 5px;
+	width:100%;
 }
 
 #main
@@ -67,6 +68,12 @@ a:active
 	border:thin;
 }
 
+.item.NewsFeed {
+    float: left;
+	margin: 2px;
+	border:thin;
+}
+
 .item.w2 {
     width: 130px;
 }
@@ -83,12 +90,6 @@ a:active
 	font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
 	font-size:13px;
 	cursor:default;
-}
-
-.UserInfoBox{
-	width:500px;
-	background-color: #e1e1e1;
-	margin: 5px;
 }
 
 .topBar{
@@ -136,6 +137,83 @@ min-height: 100%;
 	vertical-align: middle;
 	background-color: #ece8e8;
 	cursor:default;
+}
+
+/* ---------------------------- 
+User profile
+---------------------------- */
+
+.StalkingsContainer {
+  	width:500px;
+  	overflow: hidden;
+	cursor:default;
+}
+.StalkingsDiv {
+   	float: right;
+   	width:245px;
+	background-color: #e1e1e1;
+	padding-bottom: 1000px;
+    margin-bottom: -1000px;
+}
+.StalkersDiv {
+   	float: left;
+   	width:245px;
+	background-color: #e1e1e1;
+	padding-bottom: 1000px;
+    margin-bottom: -1000px;
+}
+
+.UserInfoContainer {
+  width:500px;
+  overflow: hidden;
+  margin:5px;
+  padding: 0;
+}
+.UserInfoDiv{
+	float: right;
+   	width:320px;
+	padding-bottom: 1000px;
+    margin-bottom: -1000px;
+}
+.UserInfoInnerDiv{
+	background-color: #e1e1e1;
+}
+.UserImageDiv{
+	float: left;
+   	width:175px;
+	padding-bottom: 1000px;
+    margin-bottom: -1000px;
+}
+
+.UserImageBox{
+	width: 175px; height: 175px; overflow: hidden;
+}
+.userImage{
+	/*height:auto;
+	width: 500px;
+	margin:4px;*/
+}
+
+.stalksDisplay{
+	background-color: #e1e1e1;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+	padding: 8px;
+}
+
+.editProfileButton{
+	background-color: #e1e1e1;
+	margin: 10px;
+	padding: 5px;
+	width: 100px;
+}
+
+.StalkButton{
+	display: none;
+	background-color: #e1e1e1;
+	margin: 10px;
+	padding: 5px;
+	width: 100px;
 }
 
 /* ---------------------------- 

@@ -1,3 +1,7 @@
 exports.login = function(req, res){
-	res.render("login.jade", { title: 'Login'});
+	if(req.session.username != undefined){
+		res.redirect('/');
+	} else{
+		res.render("login.jade", { title: 'Login',  variable:{user: undefined} });
+	}
 };

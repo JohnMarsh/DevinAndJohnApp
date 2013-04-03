@@ -1,3 +1,7 @@
 exports.register = function(req, res){
-	res.render("register.jade", { title: 'Registration'});
+if(req.session.username != undefined){
+		res.redirect('/');
+	} else{
+		res.render("register.jade", { title: 'Registration',  variable:{user: undefined} });
+	}
 }

@@ -15,7 +15,8 @@ var express = require('express')
   , path = require('path')
   , bcrypt = require("bcrypt") //hashing algorithm
   , MySQLSessionStore = require('connect-mysql-session')(express)
-  , im = require('imagemagick');
+  , im = require('imagemagick')
+  , cronJob = require('cron').CronJob;
 var app = express();
 var fs = require('fs');
 
@@ -26,7 +27,7 @@ var alleup = new Alleup({storage : "aws", config_file: "alleup_config.json"})
 
 
 app.configure(function(){
-  app.set('port', process.env.PORT || 4006);
+  app.set('port', process.env.PORT || 4008);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.favicon());
@@ -57,6 +58,7 @@ app.get('/upload_content', pages.uploadContent);
 
 app.get('/user/:user', user.userProfile);
 app.get('/users', user.users);
+app.get('/editProfile', user.editProfile);
 
 app.get('/register', register.register);
 
@@ -65,13 +67,13 @@ app.get('/categories', pages.categories);
 
 app.get('/login', login.login);
 app.get('/myProfile', profile.profile);
+app.get('/newsfeed', pages.newsfeed);
 
 app.post('/getContent', function(req, res){
   if(req.body.startNum != undefined && req.body.endNum != undefined){
     function doOtherStuff(content){
       res.send(content);
     }
-
     // Gets the categories from the database
     theDb.getContent(req.body.startNum, req.body.endNum, 'Content.DateTime', function(theContent) {
       doOtherStuff(theContent);
@@ -81,21 +83,29 @@ app.post('/getContent', function(req, res){
   }
 });
 
-randomLikes = function(content){
-  for(var z=0; z<content.length; z++){
-    for(var i=22000; i<30000; i++){
-      var obj = {
-          UserID: i,
-          ContentID: content[z].ContentID,
-          IsLike: getRandomInt(0,1),
-        };
-        theDb.likeContent(obj, function(numberOfLikes) {
-          
-        });   
-    }
-    theDb.getNumberOfLikes(content[z].ContentID, function(){});
-  }
+randomLikes = function(){
+    //for(var i=1; i<100000; i++){
+      doDaStuff = function(){
+        var obj = {
+            UserID: getRandomInt(500,3000),
+            ContentID: getRandomInt(548,6000),
+            IsLike: getRandomInt(0,1),
+          };
+          theDb.likeContent(obj, function(numberOfLikes) {
+            
+          });
+      }
+      setTimeout(function(){
+        doDaStuff();
+        randomLikes();
+      }, getRandomInt(100,500));   
+   // }
+  //for(var z=0; z<content.length; z++){
+   // theDb.getNumberOfLikes(content[z].ContentID, function(){});
+  //}
 }
+
+randomLikes();
 
 //theDb.getContentIDs(0,1000,'ContentID', randomLikes);
 
@@ -114,6 +124,44 @@ randomUsers = function(){
     theDb.register(user);
   }
 }
+
+stalkUsers = function(){
+  for(var i=500; i<3000; i++){
+    theDb.stalkUser(28570, i, function(){});
+  }
+}
+
+//stalkUsers();
+
+  randomContent = function(){
+    // Generates a new content object to be put into the database
+    for(var i=0; i<5000; i++){
+      var newContent = {
+        Title: makeid(),
+        UploaderID: getRandomInt(1000, 4000),
+        CategoryID: getRandomInt(1, 12),
+        Likes: 0,
+        Dislikes: 0,
+        Ratio: 0
+      };
+      
+      var contentImage = {
+        FileName: "def.jpg",
+        Height: 1,
+        Width: 1
+      };
+
+      function convertImage(id){
+        console.log("Created: "+id);
+      }
+      
+      theDb.addContent(newContent, contentImage, convertImage);
+
+      console.log("DONE");
+    };
+  }
+
+  //randomContent();
 
 //randomUsers();
 
@@ -134,14 +182,18 @@ function getRandomInt (min, max) {
 
 // Gets the content joined with if the user as liked table
 app.post('/getContentFromUser', function(req, res){
-  if(req.body.startNum != undefined && req.body.endNum != undefined && req.body.userID != undefined){
+  if(req.body.startNum != undefined && req.body.endNum != undefined && req.session.userid != undefined){
     function doOtherStuff(content){
     
       res.send(content);
     }
 
-    // Gets the content 
-    theDb.getContentFromLoggedInUser(req.body.startNum, req.body.endNum, 'Content.DateTime', req.body.userID, function(theContent) {
+    /*// Gets the content 
+    theDb.getContentFromLoggedInUser(req.body.startNum, req.body.endNum, 'Content.DateTime', req.session.userid, function(theContent) {
+      doOtherStuff(theContent);
+    });*/
+
+    theDb.getTrendingContentFromLoggedInUser(req.body.startNum, req.body.endNum, req.session.userid, function(theContent) {
       doOtherStuff(theContent);
     });
   } else{
@@ -149,15 +201,95 @@ app.post('/getContentFromUser', function(req, res){
   }
 });
 
+// Checks if user is stalking another user
+app.post('/userIsStalkingUser', function(req, res){
+  if(req.body.user != undefined && req.session.userid != undefined){
+    callback = function(result){
+      res.send(result);
+    }
+    theDb.userIsStalkingUser(req.session.userid, req.body.user, callback);
+  } else{
+    res.send(false);
+  }
+});
+
+// Stalks a given user
+app.post('/stalkUser', function(req, res){
+  if(req.body.user != undefined && req.session.userid != undefined){
+    callback = function(result){
+      console.log("Sendinf stalk");
+      res.send(result);
+    }
+    console.log("stalk: "+req.session.userid+" and : "+req.body.user);
+    theDb.stalkUser(req.session.userid, req.body.user, callback);
+  } else{
+          console.log("Failed stalk");
+
+    res.send(false);
+  }
+});
+
+// Stalks a given user
+app.post('/unstalkUser', function(req, res){
+  if(req.body.user != undefined && req.session.userid != undefined){
+    callback = function(result){
+      res.send(result);
+    }
+    theDb.unstalkUser(req.session.userid, req.body.user, callback);
+  } else{
+    res.send(false);
+  }
+});
+
+// Updates user info for a user
+app.post('/saveProfileInfo', function(req, res){
+  if(req.body.info != undefined && req.session.userid != undefined){
+    callback = function(result){
+      res.send(result);
+    }
+    theDb.updateBasicInfo(req.session.userid, req.body.info, callback);
+  } else{
+    res.send(false);
+  }
+});
+
+app.post('/getNewsFeedForUser', function(req, res){
+  if(req.session.userid != undefined){
+    callback = function(result){
+      res.send(result);
+    }
+    theDb.getNewsFeedForUser(req.session.userid, callback);
+  } else{
+    res.send(false);
+  }
+});
+
 // Gets new content after a point of time
 app.post('/getMoreRecentContentFromUser', function(req, res){
-  if(req.body.mostRecentContent != undefined && req.body.userID != undefined){
+  if(req.body.mostRecentContent != undefined && req.session.userid != undefined){
     function doOtherStuff(content){
       res.send(content);
     }
 
     // Gets the content 
-    theDb.getMoreContentFromLoggedInUser(req.body.mostRecentContent, req.body.userID, function(theContent) {
+    theDb.getMoreContentFromLoggedInUser(req.body.mostRecentContent, req.session.userid, function(theContent) {
+      doOtherStuff(theContent);
+    });
+  } else{
+    console.log("Error");
+    res.send(undefined);
+  }
+});
+
+// Gets new activity for a news feed after a point of time
+app.post('/getMoreRecentActivity', function(req, res){
+  if(req.body.mostRecentContent != undefined && req.session.userid != undefined){
+    function doOtherStuff(content){
+      res.send(content);
+    }
+
+    // Gets the content 
+    theDb.getMoreActivity(req.body.mostRecentContent, req.session.userid, function(theContent) {
       doOtherStuff(theContent);
     });
   } else{
@@ -185,14 +317,14 @@ app.post('/getContentForUser', function(req, res){
 
 app.post('/getContentForCategoryFromUser', function(req, res){
   if(req.body.startNum != undefined && req.body.endNum != undefined && req.body.category!=undefined
-    && req.body.UserID){
+    && req.session.userid){
     function doOtherStuff(content){
       res.send(content);
     }
 
     // Gets the categories from the database
     theDb.getContentForCategory(req.body.startNum, req.body.endNum, req.body.category, 'Content.DateTime', 
-      req.body.UserID, function(theContent) {
+      req.session.userid, function(theContent) {
       doOtherStuff(theContent);
     });
   } else{
@@ -215,6 +347,21 @@ app.post('/getStalkersForUser', function(req, res){
   }
 });
 
+app.post('/getStalkingsForUser', function(req, res){
+  if(req.body.userID != undefined){
+    function doOtherStuff(stalkers){
+      res.send(stalkers);
+    }
+
+      // Gets the categories from the database
+    theDb.getUserStalkings(req.body.userID, function(theContent) {
+      doOtherStuff(theContent);
+    });
+  } else{
+    res.send(undefined);
+  }
+});
+
 app.post('/getCategories', function(req, res){
   function doOtherStuff(cat){
     res.send(cat);
@@ -227,18 +374,18 @@ app.post('/getCategories', function(req, res){
 });
 
 app.post('/likeContent', function(req, res){
+    console.log('->'+JSON.stringify(req.session));
 
   sendBack = function(numberOfLikes){
     var sendObj = {
       numberOfLikes: numberOfLikes
     }
-    console.log("Sending:"+numberOfLikes );
     res.send(sendObj);
   }
   
-  if(req.body.user != undefined && req.body.content != undefined && req.body.isLike != undefined){
+  if(req.session.userid != undefined && req.body.content != undefined && req.body.isLike != undefined){
     var obj = {
-      UserID: req.body.user,
+      UserID: req.session.userid,
       ContentID: req.body.content,
       IsLike: req.body.isLike,
     };
@@ -246,7 +393,7 @@ app.post('/likeContent', function(req, res){
       sendBack(numberOfLikes);
     }); 
   } else{
-    console.log("Post");
+    res.send(undefined);
   }
 });
 
@@ -271,7 +418,7 @@ app.post('/upload',  function(req, res) {
 		// Generates a new content object to be put into the database
 		var newContent = {
 			Title: req.body.theName,
-			UploaderID: 1,
+			UploaderID: req.session.userid,
 			CategoryID: req.body.categories,
 			Likes: 0,
 			Dislikes: 0,
@@ -306,6 +453,33 @@ app.post('/upload',  function(req, res) {
 	})
 	
 	res.redirect("/upload_content");
+});
+
+app.post("/register", function(req,res){
+
+    var user = {
+      username:  req.body.username,
+      firstName: req.body.firstName,
+      lastName:  req.body.lastName,
+      email:     req.body.email,
+      birthday:  req.body.birthday,
+      country:   req.body.country,
+      city:      req.body.city
+    }
+      //generate a salt, with 10 rounds (2^10 iterations)
+    bcrypt.genSalt(10, function(err, salt) {
+      //hash the given password using the salt we generated
+      bcrypt.hash(req.body.password, salt, function(err, hash) {
+        console.log("in the hash callback " + hash);
+        user.password = hash;  
+
+
+        theDb.register(user); 
+
+      }); 
+    });
+    
+    res.redirect("/");
 });
 
 app.post("/register", function(req,res){
@@ -377,6 +551,7 @@ app.post("/login", function(req, res){
                   if(authenticated){
                     console.log("was authenticated adding this username to session: " + username );
                     req.session.username = username;
+                    req.session.userid= userId;
                     res.redirect("/");
                   }else{
                     console.log("no password match");
@@ -400,5 +575,19 @@ app.get("/logout", function(req, res){
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
+
+//Cron job for updating the database
+var job = new cronJob({
+  cronTime: '* * * * *', // every second
+  onTick: function() {
+    console.log("cron job called");
+    theDb.orderTrending(function(result){
+      if(result === undefined){
+        console.log("an error has occured");
+      }
+    });
+  }
+});
+//job.start();
 
 

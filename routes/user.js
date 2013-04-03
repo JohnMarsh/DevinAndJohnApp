@@ -10,19 +10,47 @@ exports.userProfile = function(req, res){
 	console.log(JSON.stringify(req.session));
 	
 	if(isOkQuery && userName != undefined){
-		// Function to do remainder of work after db query is finished
-		doOtherStuff = function(theUser){
-			var isSelf = (theUser.Username == req.session.username);
-			res.render("user.jade", { title: 'User Profile', variable:{user: theUser, isSelf: isSelf} });
-		};
 		
+
+		loadUser = function(user){
+			// Function to do remainder of work after db query is finished
+			doOtherStuff = function(theUser){
+				var isSelf = (user.Username.toLowerCase() == req.session.username);
+				console.log('theuser: '+JSON.stringify(theUser));
+				console.log('user: '+JSON.stringify(user));
+
+				res.render("user.jade", { title: 'User Profile', variable:{user: theUser, isSelf: isSelf, loadingUser: user} });
+			};
+			db.getUserByUsername(req.session.username, doOtherStuff);
+		}
+	
 
 		db.getUserByUsername(req.params.user, function(theUser) {
 			if(theUser != undefined)
-				doOtherStuff(theUser);
+				loadUser(theUser);
 			else
 				sendErrorPage('Error: 120', res);
 	  	});
+	} else{
+		console.log('Something went wrong with loading user profile');
+		sendErrorPage('Error: 121', res)
+	}	
+};
+
+exports.editProfile = function(req, res){
+	var isLoggedIn = false;
+	if(req.session.username != undefined) isLoggedIn = true;
+	
+	if(isLoggedIn){
+		
+		loadUser = function(){
+			// Function to do remainder of work after db query is finished
+			doOtherStuff = function(theUser){
+				res.render("editProfile.jade", { title: 'User Profile', variable:{user: theUser} });
+			};
+			db.getUserByUsername(req.session.username, doOtherStuff);
+		}
+		loadUser();
 	} else{
 		console.log('Something went wrong with loading user profile');
 		sendErrorPage('Error: 121', res)
@@ -34,7 +62,7 @@ exports.users = function(req, res){
 	
 	// Function to do remainder of work after db query is finished
 	doOtherStuff = function(users){
-			res.render("users.jade", { title: 'Users', variable:{users: users} });
+			res.render("users.jade", { title: 'Users', variable:{users: users, user: req.session.username} });
 	};
 	
 	// Gets the categories from the database
@@ -44,5 +72,5 @@ exports.users = function(req, res){
 };
 
 function sendErrorPage(error, res){
-		res.render("error.jade", {title: 'Error Page', error: error});
+		res.render("error.jade", {title: 'Error Page', error: error, variable:{user: undefined}});
 }

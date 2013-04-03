@@ -1,0 +1,34 @@
+extends layout
+
+block content
+	script(src='/public/javascripts/registerJQ.js')
+	script(src='/public/javascripts/user_profile.js')
+	script(src='/public/javascripts/errorchecking.js')
+	script(type='text/javascript')
+		$(document).ready(function(){
+			UserProfileFunctions.loadEditProfile(!{JSON.stringify(variable)});
+		});
+
+
+	center
+		h2 Edit Profile
+		div
+			div.control-group.input-append
+				input(type="text", name="firstName", id="firstName", data-required)
+				label.add-on(for="firstName") First Name
+			div.control-group.input-append
+				input(type="text", name="lastName", id="lastName", data-required)
+				label.add-on(for="lastName") Last Name
+			div.control-group.input-append
+				input(type="text", name="email" , id="email", data-required)
+				label.add-on(for="email") Email
+			div.control-group.input-append
+				input(type="text", name="birthday" , id="birthday", data-required)
+				label.add-on(for="birthday") Birthday
+			div.control-group.input-append
+				input(type="text", name="country", id="country", data-required)
+				label.add-on(for="country") Country
+			div.control-group.input-append
+				input(type="text", name="city" , id="city", data-required)
+				label.add-on(for="city") City
+			button(id="saveButton") Save

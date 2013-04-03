@@ -1,0 +1,1 @@
+SELECT * FROM `Likes` JOIN Content ON Likes.ContentID = Content.ContentID JOIN Users ON Users.UserID=Likes.UserID WHERE - ORDER BY Likes.DateTime

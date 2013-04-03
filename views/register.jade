@@ -1,6 +1,6 @@
 extends layout
 block content
-	body
+		script(src='/public/javascripts/registerJQ.js')
 		center
 			div(class="mainDiv")
 				center
@@ -31,6 +31,5 @@ block content
 							div.control-group.input-append
 								input(type="text", name="city" , id="city", data-required)
 								label.add-on(for="city") City
-
 							button(type="submit") Register
 

@@ -171,17 +171,21 @@ LoadContentFunctions = (function(){
 	function getTop(content){
 		var imageWidth;
 		var imageHeight;
-
 		imageWidth = 200;
 		imageHeight = (200/content.Width) * content.Height;
 
 		var bottomHeight = 80;
 		var contentHeight = imageHeight + bottomHeight;
-
-		var theString = '<div class="item Wide" style="height:' + contentHeight 
-			+'px; width: +' + imageWidth + ';"><img class="contentImg" id="ContentImage_'+content.ContentID 
-			+'" width="'+ imageWidth +'" src="/public/images/' + content.ContentID + '-small.png"/><br />' 
-			+'<b>'+ content.Title+'</b>';
+		if(content.FileName != "def.jpg")
+			var theString = '<div class="item Wide" style="height:' + contentHeight 
+				+'px; width: +' + imageWidth + ';"><img class="contentImg" id="ContentImage_'+content.ContentID 
+				+'" width="'+ imageWidth +'" src="/public/images/' + content.ContentID + '-small.png"/><br />' 
+				+'<b>'+ content.Title+'</b>';
+		else
+			var theString = '<div class="item Wide" style="height:' + contentHeight 
+				+'px; width: +' + imageWidth + ';"><img class="contentImg" id="ContentImage_'+content.ContentID 
+				+'" width="'+ imageWidth +'" src="/public/images/user/default.jpg"/><br />' 
+				+'<b>'+ content.Title+'</b>';
 		return theString;
 	}
 

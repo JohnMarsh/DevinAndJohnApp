@@ -1,0 +1,15 @@
+extends layout
+
+block content
+	script(src='/public/javascripts/newsfeed.js')
+	script(type='text/javascript')
+		$(document).ready(function(){
+			var tempUser = !{JSON.stringify(variable.user)};
+			NewsFeedFunctions.loadNewsFeed(tempUser);
+		});
+	center
+		br
+		div(id="container", style="position: relative;", class="masonry")
+
+		nav(id="page-nav")
+			a(href="pages/2.html")

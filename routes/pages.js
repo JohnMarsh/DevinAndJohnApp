@@ -19,7 +19,26 @@ exports.uploadContent = function(req, res){
 			});
 	  	});	
 	} else{
-		res.render("login.jade", {title: 'Please Login'});
+		res.render("login.jade", {title: 'Please Login',  variable:{user: undefined}});
+	}
+};
+
+// A page which displays a news feed for a user
+exports.newsfeed = function(req, res){	
+	if(req.session.username != undefined){
+		// Function to do remainder of work after db query is finished
+		doOtherStuff = function(theUser, theCategories){
+			res.render("newsfeed.jade", { title: 'Upload Content', variable:{user: theUser} });
+		};
+		// Gets the current user from database
+		db.getUserByUsername(req.session.username, function(theUser) {
+			if(theUser != undefined)
+				doOtherStuff(theUser);
+			else
+				sendErrorPage('Error: 322', res);
+	  	});	
+	} else{
+		res.render("login.jade", {title: 'Please Login',  variable:{user: undefined}});
 	}
 };
 
@@ -28,7 +47,7 @@ exports.categories = function(req, res){
 	if(req.session.username != undefined){
 		// Function to do remainder of work after db query is finished
 		doOtherStuff = function(theCategories){
-				res.render("categories.jade", { title: 'Categories', variable:{categories: theCategories} });
+				res.render("categories.jade", { title: 'Categories', variable:{categories: theCategories, user:req.session.username} });
 		};
 		
 		// Gets the categories from the database
@@ -36,7 +55,7 @@ exports.categories = function(req, res){
 			doOtherStuff(categories);
 	  	});
 	} else{
-		res.render("login.jade", {title: 'Please Login'});
+		res.render("login.jade", {title: 'Please Login',  variable:{user: undefined}});
 	}
 };
 
@@ -67,11 +86,11 @@ exports.category = function(req, res){
 			sendErrorPage('Error: 321', res);
 		}
 	} else{
-		res.render("login.jade", {title: 'Please Login'});
+		res.render("login.jade", {title: 'Please Login',  variable:{user: undefined}});
 	}
 };
 
 // An error page
 function sendErrorPage(error, res){
-	res.render("error.jade", {title: 'Error Page', error: error});
+	res.render("error.jade", {title: 'Error Page', error: error,  variable:{user: undefined}});
 }

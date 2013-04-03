@@ -20,8 +20,11 @@ function getDatabase(){
 	connection.connect(function(err) {
 	});
 
-	const DEBUG = true;
+	const DEBUG = false;
 	queues(connection, DEBUG);
+
+	var moment = require('moment');
+	moment().format();
 
 	
 	// The database object to be returned
@@ -78,7 +81,6 @@ function getDatabase(){
     }
 
     db.findUser = function(username, callback){
-    	console.log("finding userID with username:"  + username);
 		var query = 'SELECT'+
 					' UserID'+
 					' FROM Users'+  
@@ -97,8 +99,6 @@ function getDatabase(){
 	}
 
     db.findPassword = function(userID, callback){
-    	console.log("finding password with userID:"  + userID);
-
 				var query = 'SELECT'+
 					' Password'+
 					' FROM UserPassword'+  
@@ -106,13 +106,27 @@ function getDatabase(){
 		  connection.query(query, [userID], function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(undefined); throw err;};
 		  if(rows != undefined){
-		  	console.log("calling callback with value:"  + rows[0].Password);
 		  	callback(rows[0].Password);
 		  }	
 		  else{
-		  	console.log("calling callback with undefined");
 		  	callback(undefined);
 		  }	
+		});
+	}
+
+	db.userIsStalkingUser = function(stalker, stalking, callback){
+		var query = 'SELECT'+
+					' *'+
+					' FROM Stalkings'+  
+					' WHERE StalkerID='+stalker+' AND StalkingID='+stalking+' LIMIT 1';
+		connection.query(query, function(err, rows, fields) {
+			if (err){ console.log('ERROR CONNECTING TO MYSQL: '+err); callback(false); throw err;
+			} else{
+			  if(rows[0] != undefined){
+			  	callback(true);
+			  }else
+			  	callback(false);
+			}
 		});
 	}
 	
@@ -176,10 +190,8 @@ function getDatabase(){
 		'AND Likes.UserID='+userID+' '+
 		'ORDER BY '+order+' DESC '+
 		'LIMIT '+start+' , '+num;
-		console.log(query);
 		connection.query(query, function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getContentFromLoggedInUser - ' +err); callback(undefined); throw err;};
-		  console.log(JSON.stringify(rows));
 		  callback(rows);
 	
 		});
@@ -197,15 +209,13 @@ function getDatabase(){
 		'LEFT JOIN Likes ON Likes.ContentID = Content.ContentID '+
 		'AND Likes.UserID='+userID+' '+
 		'WHERE Content.DateTime >\"'+ date+'\"';
-		console.log(query);
 		connection.query(query, function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getContentFromLoggedInUser - ' +err); callback(undefined); throw err;};
-		  console.log(JSON.stringify(rows));
+
 		  callback(rows);
 	
 		});
 	}
-
 
 	db.getContentForUser = function(start, num, order, userID, callback){
 		var query = 
@@ -219,7 +229,26 @@ function getDatabase(){
 		'AND Likes.UserID='+userID+' '+
 		'ORDER BY '+order+' DESC '+
 		'LIMIT '+start+' , '+num;
-		console.log(query);
+		connection.query(query, function(err, rows, fields) {
+		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getContentFromLoggedInUser - ' +err); callback(undefined); throw err;};
+		  callback(rows);
+	
+		});
+	}
+
+	db.getTrendingContentFromLoggedInUser = function(start, num, userID, callback){
+		var query = 
+		'SELECT '+
+		'Content.ContentID, Content.UploaderID, Content.Title, Content.Ratio, Content.DateTime, Content.CategoryID,'+
+		'Likes.UserID, Likes.IsLike, Likes.DateTime AS LikeDateTime,'+
+		'ContentImages.ImageID, ContentImages.FileName, ContentImages.Height, ContentImages.Width '+
+		'From Trending '+
+		'JOIN Content ON Content.ContentID=Trending.ContentID '+
+		'JOIN ContentImages ON ContentImages.ContentID = Content.ContentID '+
+		'LEFT JOIN Likes ON Likes.ContentID = Content.ContentID '+
+		'AND Likes.UserID='+userID+' '+
+		'ORDER BY Trending.Score DESC '+
+		'LIMIT '+start+' , '+num;
 		connection.query(query, function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getContentFromLoggedInUser - ' +err); callback(undefined); throw err;};
 		  callback(rows);
@@ -241,7 +270,6 @@ function getDatabase(){
 		'WHERE Content.CategoryID='+categoryID+' '+
 		'ORDER BY '+order+' '+
 		'LIMIT '+start+' , '+num;
-		console.log(query);
 		connection.query(query, function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getCotent - ' +err); callback(undefined); throw err;};
 		  
@@ -255,8 +283,9 @@ function getDatabase(){
 		var query = 'SELECT '+
 					'Users.UserID, Users.Username, Users.DateTime, '+
 					'BasicInfo.FirstName, BasicInfo.LastName, BasicInfo.Birthday, BasicInfo.Email, '+
-					'BasicInfo.Country, BasicInfo.City '+
-					' FROM Users JOIN BasicInfo ON Users.userID = BasicInfo.userID'+  
+					'BasicInfo.Country, BasicInfo.City, UserImages.FileName, UserImages.Width, UserImages.Height '+
+					' FROM Users JOIN BasicInfo ON Users.userID = BasicInfo.userID'+
+					' LEFT JOIN UserImages ON Users.userID = UserImages.userID'+  
 					' WHERE Users.UserID=' + userID + ' LIMIT 1';
 		connection.query(query, function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(undefined); throw err;};
@@ -276,7 +305,6 @@ function getDatabase(){
 					'FROM Users JOIN BasicInfo ON Users.UserID = BasicInfo.UserID '+
 					'LEFT JOIN UserImages ON Users.UserID = UserImages.UserID '+  
 					'WHERE Users.Username=? LIMIT 1';
-					console.log(query);
 		connection.query(query, [username], function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL: ' +err); callback(undefined); throw err;};
 		  if(rows!=undefined)
@@ -314,15 +342,40 @@ function getDatabase(){
 		  callback(rows);	
 		});
 	}
+
+	db.stalkUser = function(stalker, stalking, callback){
+		var query = 'INSERT INTO Stalkings '+
+					'SET StalkerID='+stalker+
+					', StalkingID='+stalking;
+		connection.query(query, function(err, result) {
+			if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(false);
+			} else{
+		  		callback(true);
+		  	}	
+		});
+	}
+
+	db.unstalkUser = function(stalker, stalking, callback){
+		var query = 'DELETE FROM Stalkings '+
+					'WHERE StalkerID='+stalker+
+					' AND StalkingID='+stalking;
+		connection.query(query, function(err, result) {
+			if (err){ console.log('ERROR CONNECTING TO MYSQL: '+err); callback(false); 
+			} else{
+		  		callback(true);	
+		  	}
+		});
+	}
 	
-	// Function which gets the stalking IDs of a user
+	// Function which gets the stalker IDs of a user
 	db.getUserStalkings = function(userID, callback) {
-		var query = 'SELECT * from Stalkings WHERE StalkerID=' + userID;
+		var query = 'SELECT * from Stalkings '+
+					'JOIN Users ON Stalkings.StalkingID=Users.UserID '+
+					'WHERE StalkerID=' + userID;
 		connection.query(query, function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(undefined); throw err;};
-		  
-		  callback(rows);
-	
+		  console.log("going to call callback");
+		  callback(rows);	
 		});
 	}
 	
@@ -428,7 +481,6 @@ function getDatabase(){
 	db.likeContent = function(obj, callback) {
 		connection.query('INSERT INTO Likes SET ?', obj, function(err, result) {
 			if (err){ 
-				console.log('A duplicate like was attempted to be added -> '+ err);
 				// If an error is thrown then attempt to update the row 
 				db.updateLike(obj);
 				db.getNumberOfLikes(obj.ContentID, callback);
@@ -441,7 +493,7 @@ function getDatabase(){
 	// Updates a like row to be either a like or a dislike
 	db.updateLike = function(obj) {
 		if(obj != undefined){
-			var query = 'UPDATE Likes SET IsLike='+obj.IsLike+' WHERE UserID='+obj.UserID
+			var query = 'UPDATE Likes SET IsLike='+obj.IsLike+', DateTime=NOW() WHERE UserID='+obj.UserID
 					  + ' AND ContentID='+obj.ContentID;
 			connection.query(query, function(err, result) {
 				if (err){ console.log('Something went wrong: ' +err); }
@@ -470,6 +522,125 @@ function getDatabase(){
 				if (err){ console.log('Something went wrong: ' +err); }
 			});
 		} 
+	}
+
+	// Updates the basic info for a user
+	db.updateBasicInfo = function(user, info, callback) {
+		var query = 'UPDATE BasicInfo SET ? WHERE UserID='+user;
+		connection.query(query, [info], function(err, result) {
+			if (err){ console.log('Something went wrong: ' +err); callback(false); }
+			callback(true);
+		});
+	}
+
+	db.getNewsFeedForUser = function(user, callback){
+		console.log("Going in");
+		db.getUserStalkings(user, function(rows){
+			var query = 'SELECT Likes.IsLike, Likes.DateTime, Likes.UserID, Likes.ContentID, '+
+						'Content.Title, Users.Username, Likes.LikeID FROM Likes '+ 
+						'JOIN Content ON Likes.ContentID = Content.ContentID '+
+						'JOIN Users ON Users.UserID=Likes.UserID WHERE';
+			for(var i = 0; i<rows.length; i++){
+				query = query + " Likes.UserID="+rows[i].StalkingID+" ";
+				if(i != rows.length-1){
+					query = query + "OR";
+				}
+			}
+			query = query + 'ORDER BY Likes.DateTime DESC LIMIT 1000';
+			connection.query(query, function(err, rows, fields) {
+				if (err){ console.log('Error getting count for likes of content: '+ err); callback(undefined); 
+				} else{	  
+					callback(rows);
+			  	}
+			});
+		});
+	}
+
+	// Gets activity occurring after a datetime
+	db.getMoreActivity = function(date, userID, callback){
+		db.getUserStalkings(userID, function(rows){
+			var query = 'SELECT Likes.IsLike, Likes.DateTime, Likes.UserID, Likes.ContentID, '+
+						'Content.Title, Users.Username FROM Likes '+ 
+						'JOIN Content ON Likes.ContentID = Content.ContentID AND Likes.DateTime>\"'+ date+'\"'+
+						'JOIN Users ON Users.UserID=Likes.UserID WHERE';
+			for(var i = 0; i<rows.length; i++){
+				query = query + " Likes.UserID="+rows[i].StalkingID+" ";
+				if(i != rows.length-1){
+					query = query + "OR";
+				}
+			}
+			query = query + '';
+			connection.query(query, function(err, rows, fields) {
+			  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getContentFromLoggedInUser - ' +err); callback(undefined); throw err;};
+			  callback(rows);
+		
+			});
+		});
+	}
+
+
+	//-------------Trending algorithm function---------------
+
+	//function to get the trending score of content based on ratio and age
+	var getTrendScore = function(content){
+
+		console.log("computing score....")
+
+
+		var constDate = moment("Jan 1 2013"); // constant date 
+		var age = moment(content.date); //age of content
+		var t = age - constDate;
+		var s = content.ratio; // ratio of likes to dislikes
+
+		//This log is implemented so that the first 10 likes carry the same weight as the next 100 likes
+		var order = log10(Math.max(Math.abs(s), 1), 10); 
+
+		var sign;
+
+		if(s > 0){
+			sign = 1;
+		}
+		else{
+			sign = -1;
+		}
+
+		return Math.round(order + sign * t / 45000);
+	}
+
+	var log10 = function (val) {
+  		return Math.log(val) / Math.LN10;
+	}
+
+	//---------------Data base reordering functions--------------------
+
+	db.orderTrending = function(callback){
+
+		console.log("computing trending....")
+
+		var getNewestContentQuery = "SELECT * FROM Content ORDER BY ContentID DESC LIMIT 1000"
+
+		connection.query(getNewestContentQuery, function(err, rows, fields) {
+		  if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(undefined); throw err;};
+		  	console.log("Length of rows is: " + rows.length);
+		  	for(var i = 0; i < rows.length; i++){
+		  		var content = {
+		  				ratio: rows[i].Ratio,
+		  				id: rows[i].ContentID,
+		  				date: rows[i].DateTime
+		  		}
+		  		content.score = getTrendScore(content);
+		  		console.log("Ratio: " + content.ratio +" ID: "+ content.id +" Score: " + content.score);
+		  		
+
+		  		var insertQuery = "INSERT INTO Trending (Score, ContentID) VALUES (?,?) ON DUPLICATE KEY UPDATE ContentID = " + content.id;
+		  		connection.query(insertQuery, [content.score, content.id], function(err, rows, fields) {
+		 			 if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(undefined); throw err;};
+		 			 	console.log("inserted....")
+		 			}); 
+		  	}
+		});
+
+
 	}
 
 	db.errorCheck = function(query){

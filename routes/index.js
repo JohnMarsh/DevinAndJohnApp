@@ -13,6 +13,6 @@ exports.index = function(req, res){
 			doOtherStuff(theUser);
 	  	});	
 	} else{
-		res.render("login.jade", {title: 'Please Login'});
+		res.render("login.jade", {title: 'Please Login',  variable:{user: undefined}});
 	}
 };
