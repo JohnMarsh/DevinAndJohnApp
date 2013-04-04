@@ -8,7 +8,6 @@ block content
 			for(var i = 0; i < options.length; i++) {
 				var opt = options[i];
 				var el = document.createElement("option");
-				console.log("Added this category to dropdown: " + options[i]);
 				el.textContent = options[i].Name;
 				el.value = options[i].CategoryID;
 				select.appendChild(el);

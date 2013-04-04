@@ -38,37 +38,62 @@ exports.userProfile = function(req, res){
 };
 
 exports.editProfile = function(req, res){
-	var isLoggedIn = false;
-	if(req.session.username != undefined) isLoggedIn = true;
-	
+	var isLoggedIn = (req.session.username != undefined);
 	if(isLoggedIn){
 		
 		loadUser = function(){
 			// Function to do remainder of work after db query is finished
 			doOtherStuff = function(theUser){
-				res.render("editProfile.jade", { title: 'User Profile', variable:{user: theUser} });
+				res.render("editProfile.jade", { title: 'Edit Profile', variable:{user: theUser} });
 			};
 			db.getUserByUsername(req.session.username, doOtherStuff);
 		}
 		loadUser();
 	} else{
-		console.log('Something went wrong with loading user profile');
+		console.log('Something went wrong with loading edit user profile');
+		sendErrorPage('Error: 121', res)
+	}	
+};
+
+exports.uploadPP = function(req, res){
+	var isLoggedIn = (req.session.username != undefined);
+	if(isLoggedIn){
+		
+		loadUser = function(){
+			// Function to do remainder of work after db query is finished
+			doOtherStuff = function(theUser){
+				res.render("uploadPP.jade", { title: 'Upload Profile Picture', variable:{user: theUser} });
+			};
+			db.getUserByUsername(req.session.username, doOtherStuff);
+		}
+		loadUser();
+	} else{
+		console.log('Something went wrong with loading uplaod profile picture');
 		sendErrorPage('Error: 121', res)
 	}	
 };
 
 // A page which displays the users
 exports.users = function(req, res){
-	
-	// Function to do remainder of work after db query is finished
-	doOtherStuff = function(users){
-			res.render("users.jade", { title: 'Users', variable:{users: users, user: req.session.username} });
-	};
-	
-	// Gets the categories from the database
-	db.getUsers(0, 100, 'UserID', function(users) {
-		doOtherStuff(users);
-  	});
+	if(req.session.username != undefined){
+		var start = 0;
+		if(req.params.num != undefined)
+			var start = req.params.num;
+		var limit = 50;
+		// Function to do remainder of work after db query is finished
+		doOtherStuff = function(users, user, start){
+				res.render("users.jade", { title: 'Users', variable:{users: users, user: user, start: start} });
+		};
+		
+		// Gets the categories from the database
+		db.getUsers(start, limit, 'UserID', function(users) {
+			db.getUserByUsername(req.session.username, function(user){
+				doOtherStuff(users, user, start);
+			});
+	  	});
+	} else{
+		res.render("login.jade", {title: 'Please Login',  variable:{user: undefined}});
+	}
 };
 
 function sendErrorPage(error, res){

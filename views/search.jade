@@ -1,0 +1,32 @@
+extends layout
+
+block content
+	script(src="/public/javascripts/search.js")
+	script(type='text/javascript')
+		$(document).ready(function(){
+			Search.initializeSearchPage(!{JSON.stringify(variable)});
+
+			// Sets a timer for knowing when user is done typing
+			var typingTimer;
+			var doneTypingInterval = 100;
+			$('#keyword').keyup(function(){
+				typingTimer = setTimeout(Search.doneTyping, doneTypingInterval);
+			});
+			$('#keyword').keydown(function(){
+				clearTimeout(typingTimer);
+			});
+		});		
+	center
+			div(class="mainDiv")
+				h3= title
+				p Start typing to search content and users
+				div.control-group.input-append
+					input(type="text", name="keyword", id="keyword", data-required)
+				center
+					div(class="resultsContainer", id="results")
+						div(class="contentResults")
+							h4 Content
+							div(id="contentResults")
+						div(class="userResults")
+							h4 Users
+							div(id="userResults")

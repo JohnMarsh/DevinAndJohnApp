@@ -11,15 +11,17 @@ LoadContentFunctions = (function(){
 	var content;								// Array of content
 	var theUser;								// The user
 	var mostRecentContent;						// The most recent content to be loaded
+	var singleContent;							// For use of loading a single content
 
 	//The type of load content happening
 	//0 = Content for homepage, user signed in
 	//1 = Content for user profile
+	//2 = Single content page
 	//Else = User not signed in
 	var typeOfConnection;
 
 //----------------------------------------------------------------------------//
-// Member functions                                                           //
+// Load multiple content                                                      //
 //----------------------------------------------------------------------------//
 
 	// Does the initial post request for getting content and then calls a funciton
@@ -34,6 +36,12 @@ LoadContentFunctions = (function(){
 				typeOfConnection = 0;
 				mostRecentContent = content[0];
 				handleLoadingContent();
+				for(var i = 1; i< data.length; i++){
+					var d1 = new Date(mostRecentContent.DateTime);
+					var d2 = new Date(data[i].DateTime)
+					if(d2>d1)
+						mostRecentContent = data[i];
+				}
 			} else{
 				handleError();
 			}
@@ -87,7 +95,7 @@ LoadContentFunctions = (function(){
 		});
 
 		$(window).scroll(function() {
-			if ($(window).scrollTop() == $(document).height() - $(window).height()) {
+			if ($(window).scrollTop() >= $(document).height() - $(window).height()-100) {
 				loadInContent($('#container'));
 			}
 		});
@@ -176,16 +184,10 @@ LoadContentFunctions = (function(){
 
 		var bottomHeight = 80;
 		var contentHeight = imageHeight + bottomHeight;
-		if(content.FileName != "def.jpg")
-			var theString = '<div class="item Wide" style="height:' + contentHeight 
-				+'px; width: +' + imageWidth + ';"><img class="contentImg" id="ContentImage_'+content.ContentID 
-				+'" width="'+ imageWidth +'" src="/public/images/' + content.ContentID + '-small.png"/><br />' 
-				+'<b>'+ content.Title+'</b>';
-		else
-			var theString = '<div class="item Wide" style="height:' + contentHeight 
-				+'px; width: +' + imageWidth + ';"><img class="contentImg" id="ContentImage_'+content.ContentID 
-				+'" width="'+ imageWidth +'" src="/public/images/user/default.jpg"/><br />' 
-				+'<b>'+ content.Title+'</b>';
+		var theString = '<div class="item Wide" style="height:' + contentHeight 
+			+'px; width: +' + imageWidth + ';"><img class="contentImg" id="ContentImage_'+content.ContentID 
+			+'" width="'+ imageWidth +'" src="' + getContentImageString(content) + '"/><br />' 
+			+'<b><a href="/content/'+content.ContentID+'">'+ content.Title+'</a></b>';
 		return theString;
 	}
 
@@ -196,7 +198,7 @@ LoadContentFunctions = (function(){
 			// Gets the ratio of likes to dislikes
 			var likesToDislikes = content.Ratio;			
 
-			returnS = '<center> <div id="likeAndDislikeDiv_' + content.ContentID +'">'
+			returnS = '<center> <div class="likeAndDislikeDiv" id="likeAndDislikeDiv_' + content.ContentID +'">'
 	        +'<div class="centeredInDiv likeDiv" id="likeDiv_' + content.ContentID +'" name="' + content.ContentID +'">like</div>'
 	        +'<div class="centeredInDiv spacerDiv" id="spacerDiv_' + content.ContentID +'" name="' + content.ContentID +'"></div>'
 	        +'<div class="centeredInDiv dislikeDiv" id="dislikeDiv_' + content.ContentID +'" name="' + content.ContentID +'">dislike</div>'
@@ -250,6 +252,10 @@ LoadContentFunctions = (function(){
 	// Does a loop for adding a specific amount of items to the container
 	function handleLoadingNewContent(data, masonryContainer){
 		for(var i = 0; i < data.length; i++) {
+			var d1 = new Date(mostRecentContent.DateTime);
+			var d2 = new Date(data[i].DateTime)
+			if(d2>d1)
+				mostRecentContent = data[i];
 			var tempcontent = data[i];
 			if(tempcontent == undefined) {
 				break; 
@@ -275,6 +281,70 @@ LoadContentFunctions = (function(){
 	}
 
 //----------------------------------------------------------------------------//
+// Load single content                                                        //
+//----------------------------------------------------------------------------//
+	function loadSingleContent(tempUser, content){
+		if(content != undefined){
+			if(content.ContentID != undefined){
+				typeOfConnection = 2;
+				theUser = tempUser;
+				singleContent = content;
+				loadSingleTitle();
+				loadSingleImage();
+				loadSingleBottom();
+				loadSingleBar();
+				return;
+			}
+		}
+		handleError();
+	}
+
+	function loadSingleTitle(){
+		$('#title').html('<h3>'+singleContent.Title+'</h3>');
+	}
+
+	function loadSingleImage(){
+		var imageWidth = 200;
+		var imageHeight = (200/singleContent.Width) * singleContent.Height;
+		var imgString = '<img width="'+imageWidth+'" height="'+imageHeight+'" src="'+
+						getContentImageString(singleContent)+'" />';
+		$('#image').html(imgString);
+	}
+
+	function loadSingleBottom(){
+		$('#rating').html('<div style="height:80px;">'+getBottomForConnectionType0(singleContent));
+		if(singleContent.IsLike != null && singleContent.IsLike != undefined)
+				displayHasLike(singleContent.IsLike, singleContent.ContentID, singleContent.Ratio);
+	}
+
+	function loadSingleBar(){
+		$.post("/getLikesAndDislikes", { content: singleContent.ContentID })
+		.done(function(data) {
+			if(data!=undefined){
+				displayLikesVSDislikesBar(data);
+			} else{
+				handleError();
+			}
+		});
+	}
+
+	function displayLikesVSDislikesBar(data){
+		var total = data.Likes + data.Dislikes;
+		if(total != 0){
+			var likesRatio = Math.round(data.Likes/total*100);
+			var dislikesRatio = Math.round(data.Dislikes/total*100);
+			var likesPixels = Math.round(data.Likes/total*500);
+			var dislikesPixels = Math.round(data.Dislikes/total*500);
+			$('#barContainer').empty();
+			$('#barContainer').append('<div class="likesBar" style="width:'+likesPixels+'px"> '+likesRatio+'%</div>');
+			if(dislikesPixels>0)
+				$('#barContainer').append('<div class="dislikesBar" style="width:'+dislikesPixels+'px"> '+dislikesRatio+'%</div>');
+			$("#barContainer").fadeIn(2500);
+		}
+	}
+
+
+//----------------------------------------------------------------------------//
 // Handlers                                                                   //
 //----------------------------------------------------------------------------//
 
@@ -294,17 +364,6 @@ LoadContentFunctions = (function(){
 	$(document).delegate("div[id^='dislikeDiv']", "click", function() {
 		var el = this;
 		haveLikedOrDislikedObject(1, $(el).attr('name'), theUser);
-	});
-
-
-	// TODO: Add pop up window when content is clicked  
-	//Sets on click listener for dislike button of content
-	$(document).delegate("img[id^='ContentImage']", "click", function() {
-		var el = this;
-		var contentID = $(el).attr('name');
-		$form = $('<div class="contentDisplay" style="height:400px;width:300px; ">Hello</div>');
-		$form.bPopup({
-	    });      
 	});
 
 	$(document).delegate("div[id^='loadMoreData']", "click", function() {
@@ -369,6 +428,12 @@ LoadContentFunctions = (function(){
 			$("#likesVsDislikesDiv_" + contentNumber).css('color','#c01e1e');
 			$("#likesVsDislikesDiv_" + contentNumber).text('No likes yet.');
 		}
+
+		if(typeOfConnection == 2){
+			$("#barContainer").fadeOut(400, function(){
+				loadSingleBar();
+			});
+		}
 	}
 
 //----------------------------------------------------------------------------//
@@ -391,6 +456,13 @@ LoadContentFunctions = (function(){
 		return dString;
 	}
 
+	function getContentImageString(con){
+		if(con.FileName != "def.jpg")
+			return '/public/images/' + con.ContentID + '-small.png';
+		else
+			return '/public/images/user/default.jpg';
+	}
+
 //----------------------------------------------------------------------------//
 // Public member functions                                                    //
 //----------------------------------------------------------------------------//
@@ -405,6 +477,10 @@ LoadContentFunctions = (function(){
 
 		initializeCategoryPage: function(tempcategory, tempUser){
 			getContentForCategory(tempcategory, tempUser);
+		},
+
+		initializeSingleContentPage: function(tempUser, content){
+			loadSingleContent(tempUser, content);
 		}
 	}
 })();

@@ -1,0 +1,30 @@
+extends layout
+
+block content
+	script(src='/public/javascripts/registerJQ.js')
+	script(src='/public/javascripts/user_profile.js')
+	script(src='/public/javascripts/errorchecking.js')
+	script(type='text/javascript')
+		$(document).ready(function(){
+			UserProfileFunctions.loadEditPP(!{JSON.stringify(variable)});
+		});
+
+
+	center
+		div(class="mainDiv")
+			div(class="mainInner")
+
+				h3 Edit Profile Picture
+				b Current Picture:
+				div(id="box")
+				br
+				button(id="deleteButton") Delete
+				br
+				br
+				b Upload New Image:
+				br
+				form(action="/uploadUserImage", enctype="multipart/form-data", method="post")
+					input(type="file", name="theImage", id='theImage')
+					br
+					br
+					input(type="submit", value="Upload")

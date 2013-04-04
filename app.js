@@ -27,7 +27,7 @@ var alleup = new Alleup({storage : "aws", config_file: "alleup_config.json"})
 
 
 app.configure(function(){
-  app.set('port', process.env.PORT || 4008);
+  app.set('port', process.env.PORT || 4007);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.favicon());
@@ -39,7 +39,7 @@ app.configure(function(){
   app.use(express.session({
      store: new MySQLSessionStore("n23n7wfhs9a99dd3", "root", "ddnddn")
     ,secret: "keyboard cat"
-    ,cookie: {maxAge: 60000 * 20} // 20 minutes
+    ,cookie: {maxAge: 60000 * 60} // 60 minutes
     }));
   app.use(app.router);
   app.use(require('stylus').middleware(__dirname + '/public'));
@@ -58,12 +58,18 @@ app.get('/upload_content', pages.uploadContent);
 
 app.get('/user/:user', user.userProfile);
 app.get('/users', user.users);
+app.get('/users/:num', user.users);
+
 app.get('/editProfile', user.editProfile);
+app.get('/uploadPP', user.uploadPP);
 
 app.get('/register', register.register);
 
 app.get('/category/:category', pages.category);
 app.get('/categories', pages.categories);
+app.get('/content/:content', pages.contentPage);
+app.get('/search', pages.search);
+
 
 app.get('/login', login.login);
 app.get('/myProfile', profile.profile);
@@ -83,102 +89,63 @@ app.post('/getContent', function(req, res){
   }
 });
 
-randomLikes = function(){
-    //for(var i=1; i<100000; i++){
-      doDaStuff = function(){
-        var obj = {
-            UserID: getRandomInt(500,3000),
-            ContentID: getRandomInt(548,6000),
-            IsLike: getRandomInt(0,1),
-          };
-          theDb.likeContent(obj, function(numberOfLikes) {
-            
-          });
-      }
-      setTimeout(function(){
-        doDaStuff();
-        randomLikes();
-      }, getRandomInt(100,500));   
-   // }
-  //for(var z=0; z<content.length; z++){
-   // theDb.getNumberOfLikes(content[z].ContentID, function(){});
-  //}
-}
 
-randomLikes();
 
-//theDb.getContentIDs(0,1000,'ContentID', randomLikes);
-
-randomUsers = function(){
-  for(var i = 0; i<400000; i++){
-    var user={
-      username:  makeid(),
-      password:  makeid(),
-      firstName: makeid(),
-      lastName:  "",
-      email:     "test@gmail.com",
-      birthday:  "2011-09-29",
-      country:   "Canada",
-      city:      "Ottawa"
+app.post('/searchContent', function(req, res){
+  if(req.body.keyword != undefined && req.session.userid != undefined){
+    function doOtherStuff(content){
+      res.send(content);
     }
-    theDb.register(user);
+    // Searches the database for the specific keyword
+    theDb.searchContent(req.body.keyword, req.session.userid, function(rows){
+      doOtherStuff(rows);
+    });
+  } else{
+    res.send(undefined);
   }
-}
+});
 
-stalkUsers = function(){
-  for(var i=500; i<3000; i++){
-    theDb.stalkUser(28570, i, function(){});
+app.post('/searchUsers', function(req, res){
+  if(req.body.keyword != undefined && req.session.userid != undefined){
+    function doOtherStuff(content){
+      res.send(content);
+    }
+    // Searches the database for the specific keyword
+    theDb.searchUsers(req.body.keyword, function(rows){
+      doOtherStuff(rows);
+    });
+  } else{
+    res.send(undefined);
   }
-}
+});
 
-//stalkUsers();
-
-  randomContent = function(){
-    // Generates a new content object to be put into the database
-    for(var i=0; i<5000; i++){
-      var newContent = {
-        Title: makeid(),
-        UploaderID: getRandomInt(1000, 4000),
-        CategoryID: getRandomInt(1, 12),
-        Likes: 0,
-        Dislikes: 0,
-        Ratio: 0
-      };
-      
-      var contentImage = {
-        FileName: "def.jpg",
-        Height: 1,
-        Width: 1
-      };
-
-      function convertImage(id){
-        console.log("Created: "+id);
-      }
-      
-      theDb.addContent(newContent, contentImage, convertImage);
-
-      console.log("DONE");
-    };
+app.post('/getLikesAndDislikes', function(req, res){
+  if(req.body.content != undefined){
+    function doOtherStuff(content){
+      res.send(content);
+    }
+    // Gets the categories from the database
+    theDb.getLikesAndDislikes(req.body.content, function(theContent) {
+      doOtherStuff(theContent);
+    });
+  } else{
+    res.send(undefined);
   }
+});
 
-  //randomContent();
-
-//randomUsers();
-
-function makeid()
-{
-    var text = "";
-    var possible = "abcdefghijklmnopqrstuvwxyz";
-
-    for( var i=0; i < getRandomInt(4,10); i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-}
-
-function getRandomInt (min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+app.post('/deleteUserImage', function(req, res){
+  if(req.body.user.UserID){
+    function doOtherStuff(content){
+      res.send(content);
+    }
+    // Gets the categories from the database
+    theDb.deleteUserImage(req.session.userid, function(theContent) {
+      doOtherStuff(theContent);
+    });
+  } else{
+    res.send(undefined);
+  }
+});
 
 // Gets the content joined with if the user as liked table
 app.post('/getContentFromUser', function(req, res){
@@ -398,62 +365,130 @@ app.post('/likeContent', function(req, res){
 });
 
 app.post('/upload',  function(req, res) {
-	// get the temporary location of the file
-    var tmp_path = req.files.theImage.path;
-    // set where the file should actually exists - in this case it is in the "images" directory
-    var target_path = './public/images/' + req.files.theImage.name;
-    // move the file from the temporary location to the intended location
-    fs.rename(tmp_path, target_path, function(err) {
-        if (err) throw err;
-        // delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
-        fs.unlink(tmp_path, function() {
-            if (err) throw err;
-            res.send('File uploaded to: ' + target_path + ' - ' + req.files.theImage.size + ' bytes');
-        });
-    });
-	
-	
-	// Function to create new object for content and content image and then send to database
-	addToDatabase = function(width, height){
-		// Generates a new content object to be put into the database
-		var newContent = {
-			Title: req.body.theName,
-			UploaderID: req.session.userid,
-			CategoryID: req.body.categories,
-			Likes: 0,
-			Dislikes: 0,
-      Ratio: 0
-		};
-		
-		var contentImage = {
-			FileName: req.files.theImage.name,
-			Height: height,
-			Width: width
-		};
-
-    function convertImage(id){
-      im.resize({
-      srcPath: __dirname+'/public/images/'+req.files.theImage.name,
-      dstPath: __dirname+'/public/images/'+id+'-small.png',
-      width:   200
-      }, function(err, stdout, stderr){
-        if (err) throw err
+  var isError = false;
+  if(req.files.theImage.name != undefined){
+  	// get the temporary location of the file
+      var tmp_path = req.files.theImage.path;
+      // set where the file should actually exists - in this case it is in the "images" directory
+      var target_path = './public/images/' + req.files.theImage.name;
+      // move the file from the temporary location to the intended location
+      fs.rename(tmp_path, target_path, function(err) {
+          if (err) {isError=true; return;}
+          // delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
+          fs.unlink(tmp_path, function() {
+              if (err) {isError=true; return;}
+              res.send('File uploaded to: ' + target_path + ' - ' + req.files.theImage.size + ' bytes');
+          });
       });
-    }
+  	
+  	
+  	// Function to create new object for content and content image and then send to database
+  	addToDatabase = function(width, height){
+  		// Generates a new content object to be put into the database
+  		var newContent = {
+  			Title: req.body.theName,
+  			UploaderID: req.session.userid,
+  			CategoryID: req.body.categories,
+  			Likes: 0,
+  			Dislikes: 0,
+        Ratio: 0
+  		};
+  		
+  		var contentImage = {
+  			FileName: req.files.theImage.name,
+  			Height: height,
+  			Width: width
+  		};
 
-		theDb.addContent(newContent, contentImage, convertImage);
+      function convertImage(id){
+        im.resize({
+        srcPath: __dirname+'/public/images/'+req.files.theImage.name,
+        dstPath: __dirname+'/public/images/'+id+'-small.png',
+        width:   200
+        }, function(err, stdout, stderr){
+          if (err) {isError=true; return;}
+        });
+      }
 
-		console.log(contentImage.FileName + ' ' + contentImage.Height);
-	};
-	
-	// Gets the correct width and height of the image
-	im.identify(target_path, function(err, features){
-		if (err) throw err
-		addToDatabase(features.width, features.height);
-	})
-	
-	res.redirect("/upload_content");
+  		theDb.addContent(newContent, contentImage, convertImage);
+
+  		console.log(contentImage.FileName + ' ' + contentImage.Height);
+  	};
+  	
+  	// Gets the correct width and height of the image
+  	im.identify(target_path, function(err, features){
+  		if (err) {isError=true; return;}
+  		addToDatabase(features.width, features.height);
+  	});
+  	
+    if(!isError)
+  	 res.redirect("/upload_content");
+    else
+      sendErrorPage(res, "Unable to upload file");
+  } else{
+    sendErrorPage(res, "Unable to upload file");
+  }
 });
+
+app.post('/uploadUserImage',  function(req, res) {
+  var isError = false;
+  if(req.files.theImage.name != undefined){
+  	// get the temporary location of the file
+      var tmp_path = req.files.theImage.path;
+      // set where the file should actually exists - in this case it is in the "images" directory
+      var target_path = './public/images/user/' + req.files.theImage.name;
+      // move the file from the temporary location to the intended location
+      fs.rename(tmp_path, target_path, function(err) {
+          if (err) {isError=true; console.log(err); return;}
+          // delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
+          fs.unlink(tmp_path, function() {
+              if (err) {isError=true; console.log(err); return;}
+              //res.send('File uploaded to: ' + target_path + ' - ' + req.files.theImage.size + ' bytes');
+          });
+      });
+  	
+  	
+  	// Function to create new object for content and content image and then send to database
+  	addToDatabase = function(width, height){	
+  	console.log('in add to database');	
+  		var contentImage = {
+  			FileName: req.files.theImage.name,
+  			Height: height,
+  			Width: width,
+  			UserID: req.session.userid
+  		};
+
+  		callback = function(){
+  			res.send(true)
+  		}
+
+  		theDb.addUserImage(contentImage, function(result){
+  			res.send(result);
+  		});
+
+  		console.log(contentImage.FileName + ' ' + contentImage.Height);
+  	};
+  	
+  	// Gets the correct width and height of the image
+  	im.identify(target_path, function(err, features){
+  		if (err) {isError=true; console.log(err); console.log(err); return;}
+  		addToDatabase(features.width, features.height);
+  	});
+  	
+    if(!isError){
+    	 console.log('no err');
+  	 res.redirect("/uploadPP");
+    }else
+      sendErrorPage(res, "Unable to upload file");
+  } else{
+    sendErrorPage(res, "Unable to upload file");
+  }
+});
+
+function sendErrorPage(res, err){
+	console.log("error");
+  res.redirect("/error");
+}
 
 app.post("/register", function(req,res){
 
@@ -578,16 +613,120 @@ http.createServer(app).listen(app.get('port'), function(){
 
 //Cron job for updating the database
 var job = new cronJob({
-  cronTime: '* * * * *', // every second
+  cronTime: '* * * * * *', // every second
   onTick: function() {
-    console.log("cron job called");
     theDb.orderTrending(function(result){
       if(result === undefined){
-        console.log("an error has occured");
+        console.log("an error has occured calling cron job");
       }
     });
   }
 });
-//job.start();
+job.start();
+
+
+
+
+///////
+// Functions for testing and demo purposes
+
+/*
+randomLikes = function(){
+    //for(var i=1; i<100000; i++){
+      doDaStuff = function(){
+        var obj = {
+            UserID: getRandomInt(500,3000),
+            ContentID: getRandomInt(548,6000),
+            IsLike: getRandomInt(0,1),
+          };
+          theDb.likeContent(obj, function(numberOfLikes) {
+            
+          });
+      }
+      setTimeout(function(){
+        doDaStuff();
+        randomLikes();
+      }, getRandomInt(100,500));   
+   // }
+  //for(var z=0; z<content.length; z++){
+   // theDb.getNumberOfLikes(content[z].ContentID, function(){});
+  //}
+}
+
+
+//randomLikes();
+
+//theDb.getContentIDs(0,1000,'ContentID', randomLikes);
+
+randomUsers = function(){
+  for(var i = 0; i<400000; i++){
+    var user={
+      username:  makeid(),
+      password:  makeid(),
+      firstName: makeid(),
+      lastName:  "",
+      email:     "test@gmail.com",
+      birthday:  "2011-09-29",
+      country:   "Canada",
+      city:      "Ottawa"
+    }
+    theDb.register(user);
+  }
+}
+
+stalkUsers = function(){
+  for(var i=500; i<3000; i++){
+    theDb.stalkUser(28570, i, function(){});
+  }
+}
+
+//stalkUsers();
+
+  randomContent = function(){
+    // Generates a new content object to be put into the database
+    for(var i=0; i<5000; i++){
+      var newContent = {
+        Title: makeid(),
+        UploaderID: getRandomInt(1000, 4000),
+        CategoryID: getRandomInt(1, 12),
+        Likes: 0,
+        Dislikes: 0,
+        Ratio: 0
+      };
+      
+      var contentImage = {
+        FileName: "def.jpg",
+        Height: 1,
+        Width: 1
+      };
+
+      function convertImage(id){
+        console.log("Created: "+id);
+      }
+      
+      theDb.addContent(newContent, contentImage, convertImage);
+
+      console.log("DONE");
+    };
+  }
+
+  //randomContent();
+
+//randomUsers();
+
+function makeid()
+{
+    var text = "";
+    var possible = "abcdefghijklmnopqrstuvwxyz";
+
+    for( var i=0; i < getRandomInt(4,10); i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
+
+function getRandomInt (min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+}*/
 
 

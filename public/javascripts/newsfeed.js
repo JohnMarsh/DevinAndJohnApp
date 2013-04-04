@@ -73,8 +73,8 @@ NewsFeedFunctions = (function(){
 				verb = 'disliked';
 			}
 		var tempString = '<div class="newsfeedItem item Newsfeed" style="width:100%;height:50px;" id="item-'+item.LikeID+'"><p><b>'+
-							'<a href="/user/'+item.Username+'">'+item.Username+'</a> '+verb+' '
-							+item.Title+'</b></p><p id="timeString-'+item.LikeID+'">'+getTimeString(item.DateTime)+'</p><br />';
+							'<a href="/user/'+item.Username+'">'+item.Username+'</a> '+verb+' <a href="/content/'+item.ContentID+'">'
+							+item.Title+'</a></b></p><p id="timeString-'+item.LikeID+'">'+getTimeString(item.DateTime)+'</p><br />';
 		return $(tempString);
 	}
 

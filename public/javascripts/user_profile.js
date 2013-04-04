@@ -70,6 +70,8 @@ UserProfileFunctions = (function(){
 		} else{	
 			appendDefaultUserImage();
 		}
+		if(isSelf)
+			$('#UserImageBox').append('<p><a href="/uploadPP">Edit Profile Picture</a></p>');
 	}
 
 	appendDefaultUserImage = function(){
@@ -142,6 +144,23 @@ UserProfileFunctions = (function(){
 		$("#birthday").val(dateToYMD(user.Birthday));
 	}
 
+	contineLoadingEditPP = function(){
+		displayCurrentUserImage();
+	}
+
+	displayCurrentUserImage = function(){
+		$('#UserImageBox').empty();
+		if(user.FileName != undefined){
+			var width = user.Width;
+			console.log('-'+JSON.stringify(user));
+			if(width >100)
+				width = 100;
+			$('#box').append('<div class="UserImageBoxEdit"><img class="userImage" width="'+width+'" src="/public/images/user/'+user.FileName+'" /></div>');
+		} else{	
+			$('#box').append('<img width="100" class="userImage" src="/public/images/user/default.jpg" />');
+		}
+	}
+
 //----------------------------------------------------------------------------//
 // Handlers                                                                   //
 //----------------------------------------------------------------------------//
@@ -209,6 +228,47 @@ UserProfileFunctions = (function(){
 		}
 	});
 
+	//Sends a delete post request for the current image
+	$(document).delegate("button[id^='deleteButton']", "click", function() {
+		$.post("/deleteUserImage", { user: user })
+		.done(function(data) {
+			if(data)
+				$('#UserImageBox').fadeOut(1000, function(){
+					user.FileName = undefined;
+					displayCurrentUserImage();
+					$('#UserImageBox').fadeIn(1000, function(){
+					});
+				});
+			else
+				alert("There was an error saving your info.")
+		});
+	});
+
+	//Sends a upload post to the server
+	$(document).delegate("button[id^='uploadButton']", "click", function() {
+
+		var imgVal = $('#imageFile').val(); 
+        if(imgVal=='') 
+        { 
+            alert("empty input file"); 
+        	return false; 
+        } 
+        var pieces = imgVal.split(/[\\]+/);
+		var name = pieces[pieces.length-1];
+        console.log('--'+name);
+		$.post("/uploadUserImage", { path: imgVal, name:name })
+		.done(function(data) {
+			if(data)
+				$('#UserImageBox').fadeOut(1000, function(){
+					displayCurrentUserImage();
+					$('#UserImageBox').fadeIn(1000, function(){
+					});
+				});
+			else
+				alert("There was an error saving your info.")
+		});
+	});
+
 	
 
 //----------------------------------------------------------------------------//
@@ -261,9 +321,9 @@ UserProfileFunctions = (function(){
 		var monthNames = [ "January", "February", "March", "April", "May", "June",
     					   "July", "August", "September", "October", "November", "December" ];
 		var d = new Date(stringDate);
-		var month = d.getMonth()+1;
+		var month = d.getMonth();
 		var year = d.getFullYear();
-		var day = d.getDate();
+		var day = d.getDate()+1;
 		var dString =  monthNames[month] + ' ' + day + ' ' +  year;
 		return dString;
 	}
@@ -297,6 +357,16 @@ return{
 			if(variables.user != undefined){
 				user = variables.user;
 				contineLoadingEditProfile();
+				return;
+			}
+
+			handleError();
+		},
+
+		loadEditPP: function (variables){
+			if(variables.user != undefined){
+				user = variables.user;
+				contineLoadingEditPP();
 				return;
 			}
 

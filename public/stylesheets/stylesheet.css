@@ -7,6 +7,7 @@ body {
     font-family: sans-serif;
 	background:#f2f2f2;
 	height:100%;
+	width:100%;
 }
 
 p{
@@ -35,12 +36,19 @@ a:active
 	text-decoration:underline;
 }
 
+.userImage:hover:after{
+    content: "<a class='edit_picture' href='' title=''>Edit Picture</a>";
+    position:absolute;
+    width:80px;
+    margin-right:-80px;
+    left:100%;
+    top:0%;
+}
+
 .mainDiv{
-	display: inline-block;
-	width:70%;
 	text-align: center;
-	background-color: #fff;
 	margin: 0px;
+	width:100%;
 }
 
 #container {
@@ -217,6 +225,62 @@ User profile
 }
 
 /* ---------------------------- 
+Likes vs dislike chart
+---------------------------- */
+
+.barContainer{
+	width: 505px;
+	padding: 1px;
+	margin: 0;
+	text-align: center;
+	cursor: default;
+	display: none;
+}
+
+.likesBar{
+	padding: 1px;
+	margin: 0;
+	background-color: #0C3;
+	float: left;
+}
+
+.dislikesBar{
+	padding: 1px;
+	margin: 0;
+	background-color: #903;
+	color: #d3d3d3;
+	float: right;
+}
+
+/* ---------------------------- 
+Search page
+---------------------------- */
+
+.resultsContainer{
+	width: 505px;
+	padding: 1px;
+	margin: 0;
+	text-align: center;
+	cursor: default;
+	display: none;
+}
+
+.contentResults{
+	padding: 1px;
+	margin: 0;
+	float: left;
+	width: 49%;
+}
+
+.userResults{
+	padding: 1px;
+	margin: 0;
+	float: right;
+	width: 49%;
+}
+
+
+/* ---------------------------- 
 CSS for An Object Box
 ---------------------------- */
 .item.content{
@@ -253,7 +317,11 @@ CSS for An Object Box
 
 .likesVsDislikesDiv{
 	width: 140px;
+	height:50px;
 	display: none;
+}
+.likeAndDislikeDiv{
+	height:50px;
 }
 
 .greenP{

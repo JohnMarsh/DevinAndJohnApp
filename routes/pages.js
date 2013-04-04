@@ -46,13 +46,15 @@ exports.newsfeed = function(req, res){
 exports.categories = function(req, res){
 	if(req.session.username != undefined){
 		// Function to do remainder of work after db query is finished
-		doOtherStuff = function(theCategories){
-				res.render("categories.jade", { title: 'Categories', variable:{categories: theCategories, user:req.session.username} });
+		doOtherStuff = function(theCategories, theUser){
+				res.render("categories.jade", { title: 'Categories', variable:{categories: theCategories, user:theUser} });
 		};
 		
 		// Gets the categories from the database
 		db.getCategories(function(categories) {
-			doOtherStuff(categories);
+			db.getUserByUsername(req.session.username, function(theUser) {
+				doOtherStuff(categories, theUser);
+			});
 	  	});
 	} else{
 		res.render("login.jade", {title: 'Please Login',  variable:{user: undefined}});
@@ -85,6 +87,52 @@ exports.category = function(req, res){
 			console.log('Something went wrong with loading category');
 			sendErrorPage('Error: 321', res);
 		}
+	} else{
+		res.render("login.jade", {title: 'Please Login',  variable:{user: undefined}});
+	}
+};
+
+// A page which displays a single content
+exports.contentPage = function(req, res){
+	var content = req.params.content;
+	var isOkQuery = db.errorCheck(content);
+	if(req.session.username != undefined){
+		if(isOkQuery && content != undefined){	
+			// Function to do remainder of work after db query is finished
+			doOtherStuff = function(theUser, theContent){
+					res.render("content.jade", { title: content.Title, variable:{user: theUser, theContent: theContent }});
+			};
+		
+			// Gets the current user from database
+			db.getUserByUsername(req.session.username, function(theUser) {
+				db.getSingleContentFromLoggedInUser(content, req.session.userid,  function(cat) {
+					if(cat != undefined)
+						doOtherStuff(theUser, cat);
+					else
+						sendErrorPage('Error: 322', res);
+				});
+		  	});	
+		} else{
+			console.log('Something went wrong with loading content');
+			sendErrorPage('Error: 324', res);
+		}
+	} else{
+		res.render("login.jade", {title: 'Please Login',  variable:{user: undefined}});
+	}
+};
+
+// A page which displays search functionality
+exports.search = function(req, res){
+	if(req.session.username != undefined){
+		// Function to do remainder of work after db query is finished
+		doOtherStuff = function(theUser){
+			res.render("search.jade", { title: "Search", variable:{user: theUser}});
+		};
+	
+		// Gets the current user from database
+		db.getUserByUsername(req.session.username, function(theUser) {
+			doOtherStuff(theUser);
+	  	});	
 	} else{
 		res.render("login.jade", {title: 'Please Login',  variable:{user: undefined}});
 	}

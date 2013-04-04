@@ -3,33 +3,34 @@ block content
 		script(src='/public/javascripts/registerJQ.js')
 		center
 			div(class="mainDiv")
-				center
-					h3 Registration Page
-					div
-						form(action="/register", method="post")
-							div.control-group.input-append
-								input(type="text", name="username", id="username", data-required)
-								label.add-on(for="username") Username
-							div.control-group.input-append
-								input(type="password", name="password", id="password", data-required)
-								label.add-on(for="password") Password
-							div.control-group.input-append
-								input(type="text", name="firstName", id="firstName", data-required)
-								label.add-on(for="firstName") First Name
-							div.control-group.input-append
-								input(type="text", name="lastName", id="lastName", data-required)
-								label.add-on(for="lastName") Last Name
-							div.control-group.input-append
-								input(type="text", name="email" , id="email", data-required)
-								label.add-on(for="email") Email
-							div.control-group.input-append
-								input(type="text", name="birthday" , id="birthday", data-required)
-								label.add-on(for="birthday") Birthday
-							div.control-group.input-append
-								input(type="text", name="country", id="country", data-required)
-								label.add-on(for="country") Country
-							div.control-group.input-append
-								input(type="text", name="city" , id="city", data-required)
-								label.add-on(for="city") City
-							button(type="submit") Register
+				div(class="mainInner")
+					center
+						h3 Registration Page
+						div
+							form(action="/register", method="post")
+								div.control-group.input-append
+									input(type="text", name="username", id="username", data-required)
+									label.add-on(for="username") Username
+								div.control-group.input-append
+									input(type="password", name="password", id="password", data-required)
+									label.add-on(for="password") Password
+								div.control-group.input-append
+									input(type="text", name="firstName", id="firstName", data-required)
+									label.add-on(for="firstName") First Name
+								div.control-group.input-append
+									input(type="text", name="lastName", id="lastName", data-required)
+									label.add-on(for="lastName") Last Name
+								div.control-group.input-append
+									input(type="text", name="email" , id="email", data-required)
+									label.add-on(for="email") Email
+								div.control-group.input-append
+									input(type="text", name="birthday" , id="birthday", data-required)
+									label.add-on(for="birthday") Birthday
+								div.control-group.input-append
+									input(type="text", name="country", id="country", data-required)
+									label.add-on(for="country") Country
+								div.control-group.input-append
+									input(type="text", name="city" , id="city", data-required)
+									label.add-on(for="city") City
+								button(type="submit") Register
 
