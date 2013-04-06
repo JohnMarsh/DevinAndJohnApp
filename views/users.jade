@@ -10,13 +10,16 @@ block content
 					+'<a href="/user/'+ users[i].Username +'">'+ users[i].Username +'</a></div>');
 				$('#users').append($newStuff);
 			}
-			var start = parseInt(!{JSON.stringify(variable.start)}); 
-			start+=50;
-			$('#next').append('<a href="/users/'+start+'">Next 50</a><br><br>');
+
+			if(users.length >=50){
+				var start = parseInt(!{JSON.stringify(variable.start)}); 
+				start+=50;
+				$('#users').append("<br><br>");
+				$('#next').append('<b><a href="/users/'+start+'">Next 50</a></b><br><br>');
+			}
 		});		
 	center
 			div(class="mainDiv")
 				h3= title
 				div(id="users")
 				div(id="next")
-					p ---------

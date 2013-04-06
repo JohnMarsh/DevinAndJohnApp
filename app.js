@@ -27,7 +27,7 @@ var alleup = new Alleup({storage : "aws", config_file: "alleup_config.json"})
 
 
 app.configure(function(){
-  app.set('port', process.env.PORT || 4007);
+  app.set('port', process.env.PORT || 4006);
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.use(express.favicon());

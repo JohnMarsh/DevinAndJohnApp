@@ -149,7 +149,7 @@ UserProfileFunctions = (function(){
 	}
 
 	displayCurrentUserImage = function(){
-		$('#UserImageBox').empty();
+		$('#box').empty();
 		if(user.FileName != undefined){
 			var width = user.Width;
 			console.log('-'+JSON.stringify(user));
@@ -233,10 +233,10 @@ UserProfileFunctions = (function(){
 		$.post("/deleteUserImage", { user: user })
 		.done(function(data) {
 			if(data)
-				$('#UserImageBox').fadeOut(1000, function(){
+				$('#box').fadeOut(1000, function(){
 					user.FileName = undefined;
 					displayCurrentUserImage();
-					$('#UserImageBox').fadeIn(1000, function(){
+					$('#box').fadeIn(1000, function(){
 					});
 				});
 			else

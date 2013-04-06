@@ -41,10 +41,13 @@ NewsFeedFunctions = (function(){
 		for(var i=currentItem; i<currentItem+50; i++){
 			if(i >= items.length) break;
 			appendNewsFeedItem(items[i]);
-
+			if(i == currentItem+50-1){
+				currentItem = currentItem+50;
+				$( '#container' ).masonry('reload');			
+				break;
+			}
 		}
-		$( '#container' ).masonry('reload');
-		currentItem = currentItem+50;
+
 	}
 
 	function appendNewsFeedItem(item){

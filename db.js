@@ -12,7 +12,7 @@ function getDatabase(){
 	  host     : 'localhost',
 	  user     : 'root',
 	  password : 'ddnddn',
-	  database : 'other',//n23n7wfhs9a99dd3',
+	  database : 'other',//'n23n7wfhs9a99dd3',
 	});
 
 	var queues = require('mysql-queues');
@@ -294,7 +294,7 @@ function getDatabase(){
 		'JOIN ContentImages ON ContentImages.ContentID = Content.ContentID '+
 		'LEFT JOIN Likes ON Likes.ContentID = Content.ContentID '+
 		'AND Likes.UserID='+userID+' '+
-		'ORDER BY Trending.Score '+
+		'ORDER BY Trending.Score DESC '+
 		'LIMIT '+start+' , '+num;
 		connection.query(query, function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL for db.getContentFromLoggedInUser - ' +err); callback(undefined); throw err;};
@@ -361,7 +361,7 @@ function getDatabase(){
 		});
 	}
 
-	// Function which gets users id info by the username
+	// Function which gets users id by the username
 	db.getUserIDByUsername = function(username, callback) {
 		var query = 'SELECT'+
 					' UserID'+
@@ -722,7 +722,7 @@ function getDatabase(){
 
 		//console.log("computing trending....")
 
-		var getNewestContentQuery = "SELECT * FROM Content ORDER BY ContentID DESC LIMIT 1000"
+		var getNewestContentQuery = "SELECT * FROM Content ORDER BY ContentID DESC LIMIT 50"
 
 		connection.query(getNewestContentQuery, function(err, rows, fields) {
 		  if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(undefined); throw err;};
@@ -735,16 +735,27 @@ function getDatabase(){
 		  		}
 		  		content.score = getTrendScore(content);
 		  		//console.log("Ratio: " + content.ratio +" ID: "+ content.id +" Score: " + content.score);
-		  		
+		  		//console.log(content.score);
 
-		  		var insertQuery = "INSERT INTO Trending (Score, ContentID) VALUES (?,?) ON DUPLICATE KEY UPDATE ContentID = " + content.id;
-		  		connection.query(insertQuery, [content.score, content.id], function(err, rows, fields) {
-		 			 if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(undefined); throw err;};
-		 		}); 
+		  		var insertQuery = "INSERT INTO Trending (Score, ContentID) VALUES (?,?)";
+		  		(function(con){
+			  		connection.query(insertQuery, [con.score, con.id], function(err, result) {
+			 			 if (err){ db.updateTrendingScore(con.id, con.score, callback);};
+			 			 callback(true);
+			 		}); 
+			 	})(content);
 		  	}
 		});
 
 
+	}
+
+	db.updateTrendingScore = function(contentID, score, callback){
+		console.log(score);
+		var insertQuery = "UPDATE Trending SET Score = ? WHERE ContentID = " + contentID;
+		  	connection.query(insertQuery, [score], function(err, rows, fields) {
+		 		 if (err){ console.log('ERROR CONNECTING TO MYSQL'); callback(undefined); throw err;};
+		 	}); 
 	}
 
 	db.onlyHasCharsAndDigits = function(s){

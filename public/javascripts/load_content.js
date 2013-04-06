@@ -27,6 +27,9 @@ LoadContentFunctions = (function(){
 	// Does the initial post request for getting content and then calls a funciton
 	// to constinue loading content
 	function getContent(tempUser){
+		currentNumberOfContent = 0;
+		currentTotalContent = 0;
+		isNoMoreData = false;
 		$.post("/getContentFromUser", { startNum: 0, endNum: maxNumberOfContent, userID: tempUser.UserID })
 		.done(function(data) {
 			if(data!=undefined){
@@ -88,6 +91,7 @@ LoadContentFunctions = (function(){
 	// Sets up massonry
 	function handleLoadingContent(){
 		//Loads masonry
+		$( '#container' ).empty();
 		$( '#container' ).masonry( { itemSelector: '.item', 
 			isFitWidth: true,
 			isAnimated: true
@@ -336,9 +340,27 @@ LoadContentFunctions = (function(){
 			var likesPixels = Math.round(data.Likes/total*500);
 			var dislikesPixels = Math.round(data.Dislikes/total*500);
 			$('#barContainer').empty();
-			$('#barContainer').append('<div class="likesBar" style="width:'+likesPixels+'px"> '+likesRatio+'%</div>');
-			if(dislikesPixels>0)
-				$('#barContainer').append('<div class="dislikesBar" style="width:'+dislikesPixels+'px"> '+dislikesRatio+'%</div>');
+			$('#barContainer').append('<div class="likesBar" id="likesBar" style="width:'+0+'px"> '+likesRatio+'%</div>');
+			setTimeout(loadLikesBar, 10)
+
+			function loadLikesBar(){
+				if($('#likesBar').width() < likesPixels){
+					$('#likesBar').width($('#likesBar').width() + 2);
+					setTimeout(loadLikesBar, 10)
+				}
+			}
+			if(dislikesPixels>0){
+				$('#barContainer').append('<div class="dislikesBar" id="dislikesBar" style="width:'+0+'px"> '+dislikesRatio+'%</div>');
+				setTimeout(loadDislikesBar, 10)
+
+				function loadDislikesBar(){
+					if($('#dislikesBar').width() < dislikesPixels){
+						$('#dislikesBar').width($('#dislikesBar').width() + 2);
+						setTimeout(loadDislikesBar, 10)
+					}
+				}
+
+			}
 			$("#barContainer").fadeIn(2500);
 		}
 	}
@@ -368,6 +390,10 @@ LoadContentFunctions = (function(){
 
 	$(document).delegate("div[id^='loadMoreData']", "click", function() {
 		loadMoreDataFromServer();      
+	});
+
+	$(document).delegate("div[id^='reloadContent']", "click", function() {
+		getContent(theUser);   
 	});
 
 //----------------------------------------------------------------------------//
@@ -426,7 +452,7 @@ LoadContentFunctions = (function(){
 			$("#likesVsDislikesDiv_" + contentNumber).text(numLikes);
 		} else{
 			$("#likesVsDislikesDiv_" + contentNumber).css('color','#c01e1e');
-			$("#likesVsDislikesDiv_" + contentNumber).text('No likes yet.');
+			$("#likesVsDislikesDiv_" + contentNumber).text('0');
 		}
 
 		if(typeOfConnection == 2){
