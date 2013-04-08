@@ -1,7 +1,9 @@
 /public/javascripts/load_content.js
+--------------
 This client side file provides the core of the functionality for the application.  This file contains functions for handling the loading of content into a formatted container using jQuery Masonry.  It makes a request to the server for current content, and then appends it to the container of content.  Each content item in the container has like and dislikes buttons which have delegates inside of this file.  These delegates send either like or dislike requests to the server, and then append the current ratio of likes to dislikes.  This files also provided functionality for a single content page in which it generates a bar plot for showing the ratio of likes to dislikes.  This file also has functions for things such as: loading in newly uploaded content without refreshing the page, endless scroll which automatically appends new items and the ability to revote on items.
 
 /public/javascripts/newsfeed.js
+--------------
 This file provides client side functions which work together to generate a newsfeed for a logged in user.  Through calling the loadNewsFeed(user) function, a request to the server for news feed items is made, and on return, these items are populated to the DOM.  These news feed items are activity from users which the logged in user is currently stalking.  Some features that this file provides are: incrementally requesting new items from the server and updating the times of news feed items on the DOM. 
 
 /public/javascripts/registerJQ.js
@@ -26,20 +28,20 @@ This is the main style sheet for the entire site and contains numerous formattin
 
 /views
 --------------
-categories.jade  A page which displays the current categories of content, and allows you to click on one to browse
-category.jade	A page for a single category which displays all of its content inside a formatted container
-content.jade	A page for a single content item which displays the content title, image, ability to vote and a bar graph representing the like ratio
-editProfile.jade	 A page for logged in users to edit their profile
-error.jade	A page which displays that an error has occurred.  Certain errors detected from the server are redirected to this page.
-index.jade	The main page which displays current trending content
-layout.jade	The main jade file which all other jade files extend from.  It provides the header for each page
-login.jade A login prompt which allows guest users to log in
-newsfeed.jade	Displays the news feed containing activity from users you are currently stalking
-pleaselogin.jade	A prompt alerting a user to login 
-register.jade	The registration page which allows new users to sign up
-search.jade	A search page which allows you to search content and users from the database
-upload.jade	A upload page which allows a logged in user to upload new content
-uploadPP.jade	A upload page which allows logged in users to upload or delete their user profile picture
-user.jade	A user profile page for a user which displays their info, image and activity
+categories.jade:  A page which displays the current categories of content, and allows you to click on one to browse
+category.jade:  A page for a single category which displays all of its content inside a formatted container
+content.jade:  A page for a single content item which displays the content title, image, ability to vote and a bar graph representing the like ratio
+editProfile.jade:  A page for logged in users to edit their profile
+error.jade:	 A page which displays that an error has occurred.  Certain errors detected from the server are redirected to this page.
+index.jade: 	The main page which displays current trending content
+layout.jade: 	The main jade file which all other jade files extend from.  It provides the header for each page
+login.jade:  A login prompt which allows guest users to log in
+newsfeed.jade: 	Displays the news feed containing activity from users you are currently stalking
+pleaselogin.jade: 	A prompt alerting a user to login 
+register.jade: 	The registration page which allows new users to sign up
+search.jade: 	A search page which allows you to search content and users from the database
+upload.jade: 	A upload page which allows a logged in user to upload new content
+uploadPP.jade: 	A upload page which allows logged in users to upload or delete their user profile picture
+user.jade: 	A user profile page for a user which displays their info, image and activity
 
 
