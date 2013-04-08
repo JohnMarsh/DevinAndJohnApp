@@ -22,10 +22,6 @@ var fs = require('fs');
 
 var theDb = db.database();
 
-var  Alleup = require('alleup');
-var alleup = new Alleup({storage : "aws", config_file: "alleup_config.json"})
-
-
 app.configure(function(){
   app.set('port', process.env.PORT || 4006);
   app.set('views', __dirname + '/views');
@@ -611,7 +607,7 @@ http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
 
-//Cron job for updating the database
+//Cron job for computing trending content in the system
 var job = new cronJob({
   cronTime: '* * * * * *', // every second
   onTick: function() {
@@ -623,8 +619,6 @@ var job = new cronJob({
   }
 });
 job.start();
-
-
 
 
 ///////

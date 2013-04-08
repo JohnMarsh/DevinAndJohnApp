@@ -5,14 +5,10 @@ function getDatabase(){
 	// Sets up database
 	var mysql      = require('mysql');
 	var connection = mysql.createConnection({
-		/*host     : 'likeordislike555.db.7757889.hostedresource.com',
-		user     : 'likeordislike555',
-	  	password : 'F2e2dfsd4sss!',
-	  	database : 'likeordislike555',*/
 	  host     : 'localhost',
 	  user     : 'root',
-	  password : 'ddnddn',
-	  database : 'other',//'n23n7wfhs9a99dd3',
+	  password : 'pass',
+	  database : 'n23n7wfhs9a99dd3',
 	});
 
 	var queues = require('mysql-queues');

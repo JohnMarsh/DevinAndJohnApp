@@ -9,8 +9,10 @@
     "jade": "*",
     "stylus": "*",
     "mysql": "*",
-    "alleup": "*",
     "mysql-queues": "*",
-    "bcrypt": "*"
+    "bcrypt": "*",
+    "imagemagick": "*",
+    "cron": "*",
+    "connect-mysql-session": "*"
   }
 }
