@@ -29,19 +29,33 @@ This is the main style sheet for the entire site and contains numerous formattin
 /views
 --------------
 categories.jade:  A page which displays the current categories of content, and allows you to click on one to browse
+
 category.jade:  A page for a single category which displays all of its content inside a formatted container
+
 content.jade:  A page for a single content item which displays the content title, image, ability to vote and a bar graph representing the like ratio
+
 editProfile.jade:  A page for logged in users to edit their profile
+
 error.jade:	 A page which displays that an error has occurred.  Certain errors detected from the server are redirected to this page.
+
 index.jade: 	The main page which displays current trending content
+
 layout.jade: 	The main jade file which all other jade files extend from.  It provides the header for each page
+
 login.jade:  A login prompt which allows guest users to log in
+
 newsfeed.jade: 	Displays the news feed containing activity from users you are currently stalking
+
 pleaselogin.jade: 	A prompt alerting a user to login 
+
 register.jade: 	The registration page which allows new users to sign up
+
 search.jade: 	A search page which allows you to search content and users from the database
+
 upload.jade: 	A upload page which allows a logged in user to upload new content
+
 uploadPP.jade: 	A upload page which allows logged in users to upload or delete their user profile picture
+
 user.jade: 	A user profile page for a user which displays their info, image and activity
 
 
